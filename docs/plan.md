@@ -6,7 +6,7 @@ This document outlines planned functionality and upcoming milestones for the Coi
 
 1. **Authentication** – integrate user login with Supabase Auth.
 2. **Enhanced Dashboard** – display charts of spending over time and upcoming bills.
-3. **Rich Expense Entry** – support categories, tags and recurring expenses.
+3. ~~**Rich Expense Entry** – support categories, tags and recurring expenses.~~ (completed)
 4. **Improved Bank Sync** – background sync of transactions and balance updates.
 5. **Offline Support** – queue actions locally and sync when connectivity returns.
 
