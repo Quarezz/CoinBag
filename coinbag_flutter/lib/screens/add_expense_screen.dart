@@ -7,8 +7,24 @@ class AddExpenseScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Add Expense')),
-      body: const Center(
-        child: Text('Form to add a new expense'),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ListView(
+          children: const [
+            TextField(decoration: InputDecoration(labelText: 'Description')),
+            TextField(
+              decoration: InputDecoration(labelText: 'Amount'),
+              keyboardType: TextInputType.number,
+            ),
+            TextField(decoration: InputDecoration(labelText: 'Category')),
+            TextField(decoration: InputDecoration(labelText: 'Tags')),
+            TextField(
+              decoration:
+                  InputDecoration(labelText: 'Recurring interval (days)'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
       ),
     );
   }
