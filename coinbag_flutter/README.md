@@ -10,7 +10,29 @@ A Flutter-based expenses tracker supporting iOS and Android.
 - Multiple accounts, deposits and cards
 - Debit and credit balance tracking
 - Quick expense entry
-- Cloud sync stub
+- Cloud sync via Supabase
+- Supabase-backed API for expenses and accounts
+
+## Configuration
+
+Set the following environment variables before running the app:
+
+```
+SUPABASE_URL=your-project-url
+SUPABASE_ANON_KEY=public-anon-key
+```
+
+These are required for the app to connect to your Supabase backend.
+
+## Supabase API
+
+The app communicates with Supabase for:
+
+- Fetching dashboard data
+- Paginated expenses listing
+- Adding, removing and editing expenses
+- Managing accounts
+- Tracking bank syncs
 
 ## Running tests
 
