@@ -2,13 +2,16 @@
 
 This document outlines planned functionality and upcoming milestones for the CoinBag project.
 
-## Near Term Goals
+## Open Items
 
-1. **Authentication** – integrate user login with Supabase Auth.
-2. **Enhanced Dashboard** – display charts of spending over time and upcoming bills.
-3. **Rich Expense Entry** – support categories, tags and recurring expenses.
-4. **Improved Bank Sync** – background sync of transactions and balance updates.
-5. **Offline Support** – queue actions locally and sync when connectivity returns.
+- **Enhanced Dashboard** – display charts of spending over time and upcoming bills.
+- **Rich Expense Entry** – support categories, tags and recurring expenses.
+- **Improved Bank Sync** – background sync of transactions and balance updates.
+- **Offline Support** – queue actions locally and sync when connectivity returns.
+
+## Closed Items
+
+- **Authentication** – integrate user login with Supabase Auth.
 
 ## Longer Term Ideas
 
