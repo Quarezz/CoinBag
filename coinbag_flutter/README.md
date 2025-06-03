@@ -3,7 +3,7 @@
 A Flutter-based expenses tracker supporting iOS and Android.
 
 ## Features
-- Dashboard with the latest expenses
+- Dashboard with spending charts and upcoming bills
 - Configurable expenses list
 - Bank account linking and sync
 - CSV import/export
