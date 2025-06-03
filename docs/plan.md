@@ -5,7 +5,7 @@ This document outlines planned functionality and upcoming milestones for the Coi
 ## Near Term Goals
 
 1. **Authentication** – integrate user login with Supabase Auth.
-2. **Enhanced Dashboard** – display charts of spending over time and upcoming bills.
+2. **Enhanced Dashboard** – display charts of spending over time and upcoming bills. *(Done)*
 3. **Rich Expense Entry** – support categories, tags and recurring expenses.
 4. **Improved Bank Sync** – background sync of transactions and balance updates.
 5. **Offline Support** – queue actions locally and sync when connectivity returns.
