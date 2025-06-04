@@ -27,7 +27,7 @@ This document outlines the detailed plan to achieve the Minimum Viable Product (
     *   [x] **[Client]** Ensure consistent error handling for auth exceptions:
         *   **Requirement:** Display user-friendly error messages for all `AuthException` types from Supabase (and any other auth-related errors).
         *   **Implementation:** Use `try-catch` blocks around calls to `AuthService`. Display errors in SnackBars or dialogs. Avoid showing raw error messages to the user.
-*   **Updates:** Added password reset option on the login screen and implemented comprehensive error messages for sign-in and sign-up failures.
+*   **Updates:** Added password reset option on the login screen and implemented comprehensive error messages for sign-in and sign-up failures .
 
 ### 2. Dashboard (`dashboard_screen.dart`)
 *   **PRD Goal:** View dashboard summary of recent spending and balances.
