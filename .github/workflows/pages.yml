@@ -29,7 +29,7 @@ jobs:
         run: flutter pub get
         working-directory: coinbag_flutter
       - name: Build web
-        run: flutter build web --release
+        run: flutter build web --release --base-href /CoinBag/
         working-directory: coinbag_flutter
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

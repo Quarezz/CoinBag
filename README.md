@@ -21,7 +21,11 @@ Run the following commands from the project root:
 cd coinbag_flutter
 flutter create . --platforms=web   # only needed once
 flutter pub get
-flutter build web --release
+flutter build web --release --base-href /CoinBag/
 ```
 
 The compiled output will appear in `coinbag_flutter/build/web`.
+
+When deploying to GitHub Pages, specify the `--base-href` option so that
+asset paths are resolved relative to the repository name. If you deploy the
+web app at a different root path, adjust the value accordingly.
