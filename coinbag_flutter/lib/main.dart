@@ -3,6 +3,7 @@ import 'screens/dashboard_screen.dart';
 import 'screens/expenses_list_screen.dart';
 import 'screens/account_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/settings/settings_screen.dart';
 import 'services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'theme.dart';
@@ -69,6 +70,7 @@ class _HomePageState extends State<HomePage> {
         authService: widget.authService,
         onLogout: widget.onLogout,
       ),
+      const SettingsScreen(),
     ];
   }
 
@@ -85,6 +87,7 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Expenses'),
           BottomNavigationBarItem(icon: Icon(Icons.account_balance), label: 'Accounts'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),
     );
