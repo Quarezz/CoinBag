@@ -10,6 +10,7 @@ A Flutter-based expenses tracker supporting iOS and Android.
 - Multiple accounts, deposits and cards
 - Debit and credit balance tracking
 - Quick expense entry
+- Rich expense entry with categories, tags and recurring expenses
 - Cloud sync via Supabase
 - Supabase-backed API for expenses and accounts
 
