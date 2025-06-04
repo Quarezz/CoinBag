@@ -5,6 +5,7 @@ import 'package:coinbag_flutter/screens/dashboard_screen.dart';
 import 'package:coinbag_flutter/screens/expenses_list_screen.dart';
 import 'package:coinbag_flutter/screens/add_expense_screen.dart';
 import 'package:coinbag_flutter/screens/account_screen.dart';
+import 'package:coinbag_flutter/screens/settings/tag_settings_screen.dart';
 
 void main() {
   group('Individual screens', () {
@@ -34,6 +35,25 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: AccountScreen()));
       expect(find.text('Accounts'), findsOneWidget);
       expect(find.text('Login'), findsOneWidget);
+    });
+
+    testWidgets('Tag settings allows creating a tag', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: TagSettingsScreen()));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tags'), findsOneWidget);
+      final initialCount = tester.widgetList(find.byType(ListTile)).length;
+
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'Test');
+      await tester.tap(find.widgetWithIcon(CircleAvatar, Icons.check));
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+
+      final newCount = tester.widgetList(find.byType(ListTile)).length;
+      expect(newCount, initialCount + 1);
     });
   });
 
