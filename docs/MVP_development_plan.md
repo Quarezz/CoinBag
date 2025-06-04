@@ -37,7 +37,7 @@ This document outlines the detailed plan to achieve the Minimum Viable Product (
         *   [ ] **[Client/Backend]** Integrate `SupabaseApiService.fetchDashboardInfo` to get real data:
             *   **Requirement:** The dashboard should display dynamic data fetched from the backend, not mock data.
             *   **Client:** Modify `DashboardScreen` to call a new method in `SupabaseApiService` (e.g., `fetchDashboardSummary`). Update the screen's state with the fetched data.
-            *   **Backend:** Create a Supabase database function (RPC) named `fetch_dashboard_info` (as mentioned in PRD) or a view. This function should aggregate:
+            *   **Backend:** Create a Supabase database function (RPC) na med `fetch_dashboard_info` (as mentioned in PRD) or a view. This function should aggregate:
                 *   Total spending over a defined period (e.g., last 30 days).
                 *   Balances from user-defined accounts (sum of `debitBalance - creditBalance` from the `accounts` table for the current user).
                 *   Information for "Upcoming Bills" (derived from recurring expenses).
