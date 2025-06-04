@@ -6,8 +6,6 @@ on:
     paths:
       - 'coinbag_flutter/**'
   pull_request:
-    paths:
-      - 'coinbag_flutter/**'
   workflow_dispatch:
 
 permissions:
