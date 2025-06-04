@@ -7,6 +7,7 @@ This document outlines planned functionality and upcoming milestones for the Coi
 - **Enhanced Dashboard** – display charts of spending over time and upcoming bills.
 - **Rich Expense Entry** – support categories, tags and recurring expenses.
 - **Improved Bank Sync** – background sync of transactions and balance updates.
+- **In-app Purchases** – unlock multiple bank syncs with a premium upgrade.
 - **Offline Support** – queue actions locally and sync when connectivity returns.
 
 ## Closed Items
