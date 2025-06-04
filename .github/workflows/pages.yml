@@ -7,6 +7,11 @@ on:
       - 'coinbag_flutter/**'
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 concurrency:
   group: 'pages'
   cancel-in-progress: true
@@ -28,8 +33,16 @@ jobs:
       - name: Build web
         run: flutter build web --release
         working-directory: coinbag_flutter
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: coinbag_flutter/build/web
+          path: coinbag_flutter/build/web
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v1
