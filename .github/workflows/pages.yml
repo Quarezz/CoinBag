@@ -54,3 +54,14 @@ jobs:
           publish_dir: coinbag_flutter/build/web
           destination_dir: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
 
+      - name: Create GitHub Deployment Status
+        uses: bobheadxi/deployments@v1
+        if: github.event_name == 'pull_request'
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: preview
+          status: success
+          env_url: https://quarezz.github.io/CoinBag/pr-${{ github.event.pull_request.number }}/
+
+
