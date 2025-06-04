@@ -8,10 +8,11 @@ import 'package:coinbag_flutter/screens/account_screen.dart';
 
 void main() {
   group('Individual screens', () {
-    testWidgets('Dashboard screen shows latest expenses', (tester) async {
+    testWidgets('Dashboard screen shows chart and bills', (tester) async {
       await tester.pumpWidget(const MaterialApp(home: DashboardScreen()));
       expect(find.text('Dashboard'), findsOneWidget);
-      expect(find.text('Latest expenses appear here'), findsOneWidget);
+      expect(find.text('Spending Over Time'), findsOneWidget);
+      expect(find.text('Upcoming Bills'), findsOneWidget);
     });
 
     testWidgets('Expenses list screen shows sample data', (tester) async {
@@ -29,10 +30,10 @@ void main() {
       expect(find.text('Recurring interval (days)'), findsOneWidget);
     });
 
-    testWidgets('Account screen shows linking placeholder', (tester) async {
+    testWidgets('Account screen shows login form when signed out', (tester) async {
       await tester.pumpWidget(const MaterialApp(home: AccountScreen()));
       expect(find.text('Accounts'), findsOneWidget);
-      expect(find.text('Bank linking and account details'), findsOneWidget);
+      expect(find.text('Login'), findsOneWidget);
     });
   });
 
@@ -41,7 +42,7 @@ void main() {
 
     // Dashboard by default
     expect(find.text('Dashboard'), findsOneWidget);
-    expect(find.text('Latest expenses appear here'), findsOneWidget);
+    expect(find.text('Spending Over Time'), findsOneWidget);
 
     // Navigate to Expenses list
     await tester.tap(find.byIcon(Icons.list));
@@ -59,6 +60,6 @@ void main() {
     await tester.tap(find.byIcon(Icons.account_balance));
     await tester.pumpAndSettle();
     expect(find.text('Accounts'), findsOneWidget);
-    expect(find.text('Bank linking and account details'), findsOneWidget);
+    expect(find.text('Login'), findsOneWidget);
   });
 }
