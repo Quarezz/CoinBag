@@ -57,7 +57,10 @@ class SpendingChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: _LineChartPainter(data),
+      painter: _LineChartPainter(
+        data: data,
+        lineColor: Theme.of(context).colorScheme.primary,
+      ),
       child: Container(),
     );
   }
@@ -65,13 +68,14 @@ class SpendingChart extends StatelessWidget {
 
 class _LineChartPainter extends CustomPainter {
   final List<double> data;
-  _LineChartPainter(this.data);
+  final Color lineColor;
+  _LineChartPainter({required this.data, required this.lineColor});
 
   @override
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
     final paint = Paint()
-      ..color = Colors.blue
+      ..color = lineColor
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
