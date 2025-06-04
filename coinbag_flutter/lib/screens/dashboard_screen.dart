@@ -1,65 +1,90 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/bill.dart';
+import '../services/supabase_api_service.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
 
-  List<double> get _spending => [500, 400, 350, 600, 450, 700];
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
 
-  List<Bill> get _upcomingBills => [
-        Bill(
-            id: '1',
-            description: 'Rent',
-            amount: 1200,
-            dueDate: DateTime.now().add(const Duration(days: 7))),
-        Bill(
-            id: '2',
-            description: 'Internet',
-            amount: 60,
-            dueDate: DateTime.now().add(const Duration(days: 12))),
-      ];
+class _DashboardScreenState extends State<DashboardScreen> {
+  late final SupabaseApiService _api;
+  List<double> _spending = const [];
+  List<Bill> _upcomingBills = const [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _api = SupabaseApiService(
+      supabaseUrl: const String.fromEnvironment(
+        'SUPABASE_URL',
+        defaultValue: '',
+      ),
+      supabaseAnonKey: const String.fromEnvironment(
+        'SUPABASE_ANON_KEY',
+        defaultValue: '',
+      ),
+    );
+    _load();
+  }
 
   Future<void> _load() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      final data = await _api.fetchDashboardSummary();
+      setState(() {
+        _spending = (data['spending'] as List<dynamic>? ?? [])
+            .map((e) => (e as num).toDouble())
+            .toList();
+        _upcomingBills = (data['upcoming_bills'] as List<dynamic>? ?? [])
+            .map(
+              (e) => Bill(
+                id: e['id'] as String,
+                description: e['description'] as String,
+                amount: (e['amount'] as num).toDouble(),
+                dueDate: DateTime.parse(e['due_date'] as String),
+              ),
+            )
+            .toList();
+      });
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-      future: _load(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        return Scaffold(
-          appBar: AppBar(title: const Text('Dashboard')),
-          body: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              const Text(
-                'Spending Over Time',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 200, child: SpendingChart(data: _spending)),
-              const SizedBox(height: 16),
-              const Text(
-                'Upcoming Bills',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              ..._upcomingBills.map(
-                (b) => ListTile(
-                  title: Text(b.description),
-                  subtitle: Text(
-                      '\$${b.amount.toStringAsFixed(2)} due ${b.dueDate.month}/${b.dueDate.day}/${b.dueDate.year}'),
-                ),
-              ),
-            ],
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    return Scaffold(
+      appBar: AppBar(title: const Text('Dashboard')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const Text(
+            'Spending Over Time',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-        );
-      },
+          SizedBox(height: 200, child: SpendingChart(data: _spending)),
+          const SizedBox(height: 16),
+          const Text(
+            'Upcoming Bills',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          ..._upcomingBills.map(
+            (b) => ListTile(
+              title: Text(b.description),
+              subtitle: Text(
+                '\$${b.amount.toStringAsFixed(2)} due ${b.dueDate.month}/${b.dueDate.day}/${b.dueDate.year}',
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
