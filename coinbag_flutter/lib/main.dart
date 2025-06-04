@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/expenses_list_screen.dart';
@@ -12,8 +13,14 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: const String.fromEnvironment('SUPABASE_URL', defaultValue: ''),
-    anonKey: const String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: ''),
+    anonKey:
+        const String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: ''),
   );
+  if (kDebugMode) {
+    print('SUPABASE_URL: ${const String.fromEnvironment('SUPABASE_URL')}');
+    print(
+        'SUPABASE_ANON_KEY: ${const String.fromEnvironment('SUPABASE_ANON_KEY')}');
+  }
   runApp(const CoinBagApp());
 }
 
@@ -70,7 +77,10 @@ class _HomePageState extends State<HomePage> {
         authService: widget.authService,
         onLogout: widget.onLogout,
       ),
-      const SettingsScreen(),
+      SettingsScreen(
+        authService: widget.authService,
+        onLogout: widget.onLogout,
+      ),
     ];
   }
 
@@ -84,10 +94,13 @@ class _HomePageState extends State<HomePage> {
         unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
         onTap: (i) => setState(() => _index = i),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Expenses'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance), label: 'Accounts'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.account_balance), label: 'Accounts'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),
     );

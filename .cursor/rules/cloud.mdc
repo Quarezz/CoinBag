@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+use [supabase_setup.md](mdc:docs/supabase_setup.md) for backend reference

@@ -38,7 +38,8 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
     });
     try {
-      await widget.authService.signIn(_emailController.text, _passwordController.text);
+      await widget.authService
+          .signIn(_emailController.text, _passwordController.text);
       widget.onLogin();
     } on AuthException catch (e) {
       setState(() => _error = e.message);
@@ -53,7 +54,8 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
     });
     try {
-      await widget.authService.signUp(_emailController.text, _passwordController.text);
+      await widget.authService
+          .signUp(_emailController.text, _passwordController.text);
       widget.onLogin();
     } on AuthException catch (e) {
       setState(() => _error = e.message);
@@ -64,60 +66,58 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final form = Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            key: const Key('emailField'),
-            controller: _emailController,
-            decoration: const InputDecoration(labelText: 'Email'),
-          ),
-          TextField(
-            key: const Key('passwordField'),
-            controller: _passwordController,
-            decoration: const InputDecoration(labelText: 'Password'),
-            obscureText: true,
-          ),
-          if (_error != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                _error!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+    return Material(
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                key: const Key('emailField'),
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
               ),
-            ),
-          const SizedBox(height: 12),
-          ElevatedButton(
-            key: const Key('loginButton'),
-            onPressed: _loading ? null : _signIn,
-            child: const Text('Login'),
+              TextField(
+                key: const Key('passwordField'),
+                controller: _passwordController,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
+              ),
+              if (_error != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    _error!,
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.error),
+                  ),
+                ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: _loading ? null : _signIn,
+                    child: const Text('Sign In'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _loading ? null : _signUp,
+                    child: const Text('Sign Up'),
+                  ),
+                ],
+              ),
+              if (widget.allowSkip) ...[
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: _loading ? null : _skip,
+                  child: const Text('Skip Login'),
+                ),
+              ],
+            ],
           ),
-          TextButton(
-            key: const Key('signupButton'),
-            onPressed: _loading ? null : _signUp,
-            child: const Text('Sign Up'),
-          ),
-          if (widget.allowSkip)
-            TextButton(
-              onPressed: _loading ? null : _skip,
-              child: const Text('Skip'),
-            )
-        ],
+        ),
       ),
-      );
-    return Stack(
-      children: [
-        form,
-        if (_loading)
-          const Positioned.fill(
-            child: ColoredBox(
-              color: Colors.black26,
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          ),
-      ],
     );
   }
 }

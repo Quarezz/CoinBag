@@ -8,21 +8,30 @@
             "name": "coinbag_flutter",
             "cwd": "coinbag_flutter",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "args": [
+                "--dart-define-from-file=.env",
+            ]
         },
         {
             "name": "coinbag_flutter (profile mode)",
             "cwd": "coinbag_flutter",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "profile",
+            "args": [
+                "--dart-define-from-file=.env",
+            ]
         },
         {
             "name": "coinbag_flutter (release mode)",
             "cwd": "coinbag_flutter",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "args": [
+                "--dart-define-from-file=.env",
+            ]
         }
     ]
 }
