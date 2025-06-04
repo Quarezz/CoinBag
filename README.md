@@ -12,6 +12,9 @@ A GitHub Actions workflow builds the Flutter project for the web and publishes
 the result to GitHub Pages. Once Pages is enabled for the repository the latest
 build will be available from the `gh-pages` branch.
 
+Pull requests also trigger preview deployments under `gh-pages/pr-<number>` so
+changes can be tested before merging.
+
 ### Local build
 
 To build the web app locally you need the Flutter SDK installed.
