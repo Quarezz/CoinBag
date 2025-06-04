@@ -13,6 +13,9 @@ void main() {
           amount: 3.5,
           date: DateTime(2024, 1, 1),
           accountId: 'a1',
+          category: 'Food',
+          tags: ['morning', 'cafe'],
+          recurringIntervalDays: 7,
         ),
       ];
       final csv = service.exportCsv(expenses);
@@ -21,6 +24,9 @@ void main() {
       expect(imported.first.description, 'Coffee');
       expect(imported.first.amount, 3.5);
       expect(imported.first.date, DateTime(2024, 1, 1));
+      expect(imported.first.category, 'Food');
+      expect(imported.first.tags, ['morning', 'cafe']);
+      expect(imported.first.recurringIntervalDays, 7);
     });
   });
 }

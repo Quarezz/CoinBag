@@ -4,7 +4,6 @@ This document outlines planned functionality and upcoming milestones for the Coi
 
 ## Open Items
 
-- **Rich Expense Entry** – support categories, tags and recurring expenses.
 - **Improved Bank Sync** – background sync of transactions and balance updates.
 - **Offline Support** – queue actions locally and sync when connectivity returns.
 
@@ -12,6 +11,7 @@ This document outlines planned functionality and upcoming milestones for the Coi
 
 - **Authentication** – integrate user login with Supabase Auth.
 - **Enhanced Dashboard** – display charts of spending over time and upcoming bills. *(Done)*
+- **Rich Expense Entry** – support categories, tags and recurring expenses.
 
 ## Longer Term Ideas
 

@@ -15,6 +15,9 @@ class CloudSyncService {
               'amount': e.amount,
               'date': e.date.toIso8601String(),
               'account_id': e.accountId,
+              'category': e.category,
+              'tags': e.tags,
+              'recurring_interval_days': e.recurringIntervalDays,
             })
         .toList();
     await _client.from('expenses').upsert(rows);
@@ -29,6 +32,9 @@ class CloudSyncService {
               amount: (r['amount'] as num).toDouble(),
               date: DateTime.parse(r['date'] as String),
               accountId: r['account_id'] as String,
+              category: r['category'] as String?,
+              tags: (r['tags'] as List<dynamic>?)?.cast<String>() ?? <String>[],
+              recurringIntervalDays: r['recurring_interval_days'] as int?,
             ))
         .toList();
   }
