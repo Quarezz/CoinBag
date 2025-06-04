@@ -20,16 +20,19 @@ void main() {
       expect(find.text('Sample expense 1'), findsOneWidget);
     });
 
-    testWidgets('Add expense screen shows form placeholder', (tester) async {
+    testWidgets('Add expense screen shows rich entry form', (tester) async {
       await tester.pumpWidget(const MaterialApp(home: AddExpenseScreen()));
       expect(find.text('Add Expense'), findsOneWidget);
-      expect(find.text('Form to add a new expense'), findsOneWidget);
+      expect(find.text('Description'), findsOneWidget);
+      expect(find.text('Category'), findsOneWidget);
+      expect(find.text('Tags'), findsOneWidget);
+      expect(find.text('Recurring interval (days)'), findsOneWidget);
     });
 
-    testWidgets('Account screen shows linking placeholder', (tester) async {
+    testWidgets('Account screen shows login form when signed out', (tester) async {
       await tester.pumpWidget(const MaterialApp(home: AccountScreen()));
       expect(find.text('Accounts'), findsOneWidget);
-      expect(find.text('Bank linking and account details'), findsOneWidget);
+      expect(find.text('Login'), findsOneWidget);
     });
   });
 
@@ -50,12 +53,12 @@ void main() {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
     expect(find.text('Add Expense'), findsOneWidget);
-    expect(find.text('Form to add a new expense'), findsOneWidget);
+    expect(find.text('Description'), findsOneWidget);
 
     // Navigate to Accounts
     await tester.tap(find.byIcon(Icons.account_balance));
     await tester.pumpAndSettle();
     expect(find.text('Accounts'), findsOneWidget);
-    expect(find.text('Bank linking and account details'), findsOneWidget);
+    expect(find.text('Login'), findsOneWidget);
   });
 }
