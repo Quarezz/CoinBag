@@ -70,8 +70,14 @@ class SettingsScreen extends StatelessWidget {
                 title: const Text('Sign Out'),
                 leading: const Icon(Icons.logout),
                 onTap: () async {
-                  await authService.signOut();
-                  onLogout();
+                  try {
+                    await authService.signOut();
+                    onLogout();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error signing out: $e')),
+                    );
+                  }
                 },
               ),
             ],
