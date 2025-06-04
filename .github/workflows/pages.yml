@@ -68,27 +68,34 @@ jobs:
               body: `🔗 Preview deployed: [Click here](https://quarezz.github.io/CoinBag/pr-${{ github.event.pull_request.number }}/)`
             })
 
-      - name: Create GitHub Deployment (official)
+      - name: Create Deployment with GH CLI (fixed)
         if: github.event_name == 'pull_request'
         env:
-          DEPLOY_URL: https://quarezz.github.io/CoinBag/pr-${{ github.event.pull_request.number }}/
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPLOY_URL: https://quarezz.github.io/CoinBag/pr-${{ github.event.pull_request.number }}/
         run: |
-          gh api repos/${{ github.repository }}/deployments \
-            -f ref=${{ github.event.pull_request.head.sha }} \
-            -f environment=Preview \
-            -f auto_merge=false \
-            -f required_contexts=[] \
-            -F description="PR preview deployment" \
-            -F transient_environment=true \
-            -F production_environment=false
-
-          gh api repos/${{ github.repository }}/deployments/$( \
-            gh api repos/${{ github.repository }}/deployments \
-              --jq '.[0].id')/statuses \
-            -f state=success \
-            -f environment_url=$DEPLOY_URL \
-            -F description="Preview ready at $DEPLOY_URL"
+          echo '{
+            "ref": "${{ github.event.pull_request.head.sha }}",
+            "environment": "Preview",
+            "auto_merge": false,
+            "required_contexts": [],
+            "description": "PR preview deployment",
+            "transient_environment": true,
+            "production_environment": false
+          }' > payload.json
+      
+          DEPLOY_ID=$(gh api repos/${{ github.repository }}/deployments --input payload.json --jq '.id')
+      
+          echo "Created deployment with ID: $DEPLOY_ID"
+      
+          echo '{
+            "state": "success",
+            "environment_url": "'"$DEPLOY_URL"'",
+            "description": "Preview ready at '"$DEPLOY_URL"'"
+          }' > status.json
+      
+          gh api repos/${{ github.repository }}/deployments/$DEPLOY_ID/statuses --input status.json
+          
 
 
       
