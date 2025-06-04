@@ -18,7 +18,7 @@ void main() {
     testWidgets('Expenses list screen shows sample data', (tester) async {
       await tester.pumpWidget(const MaterialApp(home: ExpensesListScreen()));
       expect(find.text('Expenses'), findsOneWidget);
-      expect(find.text('Sample expense 1'), findsOneWidget);
+      expect(find.text('Expense 1'), findsOneWidget);
     });
 
     testWidgets('Add expense screen shows rich entry form', (tester) async {
@@ -48,10 +48,10 @@ void main() {
     await tester.tap(find.byIcon(Icons.list));
     await tester.pumpAndSettle();
     expect(find.text('Expenses'), findsWidgets);
-    expect(find.text('Sample expense 1'), findsOneWidget);
+    expect(find.text('Expense 1'), findsOneWidget);
 
-    // Navigate to Add screen
-    await tester.tap(find.byIcon(Icons.add));
+    // Open Add screen via action button
+    await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
     expect(find.text('Add Expense'), findsOneWidget);
     expect(find.text('Description'), findsOneWidget);
