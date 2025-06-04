@@ -54,14 +54,22 @@ jobs:
           publish_dir: coinbag_flutter/build/web
           destination_dir: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
 
-      - name: Create GitHub Deployment Status
-        uses: bobheadxi/deployments@v1
+      - name: Create GitHub Deployment (start)
         if: github.event_name == 'pull_request'
+        id: deployment
+        uses: bobheadxi/deployments@v1
+        with:
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: preview
+
+      - name: Mark Deployment as Finished (success)
+        if: github.event_name == 'pull_request'
+        uses: bobheadxi/deployments@v1
         with:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
           env: preview
           status: success
           env_url: https://quarezz.github.io/CoinBag/pr-${{ github.event.pull_request.number }}/
-
-
