@@ -16,6 +16,10 @@ class AuthService {
     return _client.auth.signInWithPassword(email: email, password: password);
   }
 
+  Future<void> resetPassword(String email) {
+    return _client.auth.resetPasswordForEmail(email);
+  }
+
   Future<void> signInMock(String email) async {
     await Future.delayed(const Duration(milliseconds: 500));
     _mockEmail = email;
