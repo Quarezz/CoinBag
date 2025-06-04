@@ -27,10 +27,10 @@ void main() {
       expect(find.text('Form to add a new expense'), findsOneWidget);
     });
 
-    testWidgets('Account screen shows linking placeholder', (tester) async {
+    testWidgets('Account screen shows login form when signed out', (tester) async {
       await tester.pumpWidget(const MaterialApp(home: AccountScreen()));
       expect(find.text('Accounts'), findsOneWidget);
-      expect(find.text('Bank linking and account details'), findsOneWidget);
+      expect(find.text('Login'), findsOneWidget);
     });
   });
 
@@ -57,6 +57,6 @@ void main() {
     await tester.tap(find.byIcon(Icons.account_balance));
     await tester.pumpAndSettle();
     expect(find.text('Accounts'), findsOneWidget);
-    expect(find.text('Bank linking and account details'), findsOneWidget);
+    expect(find.text('Login'), findsOneWidget);
   });
 }
