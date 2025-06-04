@@ -4,6 +4,7 @@ import 'screens/expenses_list_screen.dart';
 import 'screens/add_expense_screen.dart';
 import 'screens/account_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +22,7 @@ class CoinBagApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'CoinBag',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: lightTheme,
       home: const HomePage(),
     );
   }
@@ -50,6 +51,8 @@ class _HomePageState extends State<HomePage> {
       body: _screens[_index],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
         onTap: (i) => setState(() => _index = i),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
