@@ -22,7 +22,6 @@ Run the following commands from the project root:
 
 ```bash
 cd coinbag_flutter
-flutter create . --platforms=web   # only needed once
 flutter pub get
 flutter build web --release --base-href /CoinBag/
 ```
