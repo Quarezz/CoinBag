@@ -20,13 +20,14 @@ This document outlines the detailed plan to achieve the Minimum Viable Product (
 ### 1. Authentication (Largely Complete)
 *   **Status:** Integrated with Supabase Auth. `AuthService` handles login, signup, signout. Mock login also available.
 *   **Open Tasks:**
-    *   [ ] **[Client/Backend]** Review and test edge cases:
+    *   [x] **[Client/Backend]** Review and test edge cases:
         *   **Requirement:** Ensure all authentication flows (sign up, sign in, sign out, password recovery/reset if applicable) are robust and handle errors gracefully.
         *   **Client:** Test UI feedback for various scenarios (e.g., incorrect password, email already exists, network errors). Verify state changes correctly (e.g., user is redirected to appropriate screen after login/logout).
         *   **Backend:** Verify Supabase Auth settings (e.g., email confirmations, secure passwords policy). Ensure Row Level Security (RLS) policies are in place for all tables, restricting access based on `auth.uid()`.
-    *   [ ] **[Client]** Ensure consistent error handling for auth exceptions:
+    *   [x] **[Client]** Ensure consistent error handling for auth exceptions:
         *   **Requirement:** Display user-friendly error messages for all `AuthException` types from Supabase (and any other auth-related errors).
         *   **Implementation:** Use `try-catch` blocks around calls to `AuthService`. Display errors in SnackBars or dialogs. Avoid showing raw error messages to the user.
+*   **Updates:** Added password reset option on the login screen and implemented comprehensive error messages for sign-in and sign-up failures.
 
 ### 2. Dashboard (`dashboard_screen.dart`)
 *   **PRD Goal:** View dashboard summary of recent spending and balances.

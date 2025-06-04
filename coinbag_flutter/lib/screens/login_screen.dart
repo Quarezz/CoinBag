@@ -43,6 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
       widget.onLogin();
     } on AuthException catch (e) {
       setState(() => _error = e.message);
+    } catch (e) {
+      setState(() => _error = 'Unexpected error: $e');
     } finally {
       setState(() => _loading = false);
     }
@@ -59,6 +61,28 @@ class _LoginScreenState extends State<LoginScreen> {
       widget.onLogin();
     } on AuthException catch (e) {
       setState(() => _error = e.message);
+    } catch (e) {
+      setState(() => _error = 'Unexpected error: $e');
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _resetPassword() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      await widget.authService.resetPassword(_emailController.text);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password reset email sent')),
+      );
+    } on AuthException catch (e) {
+      setState(() => _error = e.message);
+    } catch (e) {
+      setState(() => _error = 'Unexpected error: $e');
     } finally {
       setState(() => _loading = false);
     }
@@ -106,6 +130,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: const Text('Sign Up'),
                   ),
                 ],
+              ),
+              TextButton(
+                onPressed: _loading ? null : _resetPassword,
+                child: const Text('Forgot Password?'),
               ),
               if (widget.allowSkip) ...[
                 const SizedBox(height: 16),
