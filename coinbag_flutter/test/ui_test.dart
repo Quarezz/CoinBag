@@ -8,10 +8,11 @@ import 'package:coinbag_flutter/screens/account_screen.dart';
 
 void main() {
   group('Individual screens', () {
-    testWidgets('Dashboard screen shows latest expenses', (tester) async {
+    testWidgets('Dashboard screen shows chart and bills', (tester) async {
       await tester.pumpWidget(const MaterialApp(home: DashboardScreen()));
       expect(find.text('Dashboard'), findsOneWidget);
-      expect(find.text('Latest expenses appear here'), findsOneWidget);
+      expect(find.text('Spending Over Time'), findsOneWidget);
+      expect(find.text('Upcoming Bills'), findsOneWidget);
     });
 
     testWidgets('Expenses list screen shows sample data', (tester) async {
@@ -41,7 +42,7 @@ void main() {
 
     // Dashboard by default
     expect(find.text('Dashboard'), findsOneWidget);
-    expect(find.text('Latest expenses appear here'), findsOneWidget);
+    expect(find.text('Spending Over Time'), findsOneWidget);
 
     // Navigate to Expenses list
     await tester.tap(find.byIcon(Icons.list));
