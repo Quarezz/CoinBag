@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/expenses_list_screen.dart';
-import 'screens/add_expense_screen.dart';
 import 'screens/account_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/auth_service.dart';
@@ -66,7 +65,6 @@ class _HomePageState extends State<HomePage> {
     _screens = [
       const DashboardScreen(),
       const ExpensesListScreen(),
-      const AddExpenseScreen(),
       AccountScreen(
         authService: widget.authService,
         onLogout: widget.onLogout,
@@ -86,7 +84,6 @@ class _HomePageState extends State<HomePage> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Expenses'),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Add'),
           BottomNavigationBarItem(icon: Icon(Icons.account_balance), label: 'Accounts'),
         ],
       ),
