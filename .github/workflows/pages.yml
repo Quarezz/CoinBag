@@ -52,5 +52,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: coinbag_flutter/build/web
-          destination_dir: |
-            ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
+          destination_dir: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
+
