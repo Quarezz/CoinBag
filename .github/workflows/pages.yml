@@ -27,10 +27,6 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Enable web platform
-        run: flutter create . --platforms=web
-        working-directory: coinbag_flutter
-
       - name: Install dependencies
         run: flutter pub get
         working-directory: coinbag_flutter
