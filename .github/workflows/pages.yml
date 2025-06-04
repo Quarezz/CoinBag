@@ -5,34 +5,54 @@ on:
     branches: [main]
     paths:
       - 'coinbag_flutter/**'
+  pull_request:
+    paths:
+      - 'coinbag_flutter/**'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: 'pages'
+  group: "pages-${{ github.event.pull_request.number || 'main' }}"
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+
       - name: Enable web platform
         run: flutter create . --platforms=web
         working-directory: coinbag_flutter
+
       - name: Install dependencies
         run: flutter pub get
         working-directory: coinbag_flutter
+
+      - name: Set base href
+        id: basehref
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "BASEHREF=/CoinBag/pr-${{ github.event.pull_request.number }}/" >> $GITHUB_ENV
+          else
+            echo "BASEHREF=/CoinBag/" >> $GITHUB_ENV
+          fi
+
       - name: Build web
-        run: flutter build web --release --base-href /CoinBag/
+        run: flutter build web --release --base-href $BASEHREF
         working-directory: coinbag_flutter
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
           publish_dir: coinbag_flutter/build/web
+          destination_dir: |
+            ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
