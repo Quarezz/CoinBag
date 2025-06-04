@@ -5,6 +5,7 @@ This document outlines planned functionality and upcoming milestones for the Coi
 ## Open Items
 
 - **Improved Bank Sync** – background sync of transactions and balance updates.
+- **In-app Purchases** – unlock multiple bank syncs with a premium upgrade.
 - **Offline Support** – queue actions locally and sync when connectivity returns.
 
 ## Closed Items
