@@ -5,8 +5,10 @@ import '../models/account.dart';
 class SupabaseApiService {
   final SupabaseClient _client;
 
-  SupabaseApiService({required String supabaseUrl, required String supabaseAnonKey})
-      : _client = SupabaseClient(supabaseUrl, supabaseAnonKey);
+  SupabaseApiService({
+    required String supabaseUrl,
+    required String supabaseAnonKey,
+  }) : _client = SupabaseClient(supabaseUrl, supabaseAnonKey);
 
   Future<Map<String, dynamic>> fetchDashboardInfo(String accountId) async {
     final data = await _client
@@ -17,7 +19,19 @@ class SupabaseApiService {
     return data;
   }
 
-  Future<List<Expense>> fetchExpenses({required String accountId, int page = 0, int pageSize = 20}) async {
+  /// Calls the `fetch_dashboard_info` RPC to retrieve dashboard data for the
+  /// current authenticated user. The RPC is expected to return a JSON object
+  /// containing keys like `spending`, `balances` and `upcoming_bills`.
+  Future<Map<String, dynamic>> fetchDashboardSummary() async {
+    final data = await _client.rpc('fetch_dashboard_info').single();
+    return Map<String, dynamic>.from(data);
+  }
+
+  Future<List<Expense>> fetchExpenses({
+    required String accountId,
+    int page = 0,
+    int pageSize = 20,
+  }) async {
     final from = page * pageSize;
     final to = from + pageSize - 1;
     final data = await _client
@@ -47,15 +61,18 @@ class SupabaseApiService {
   }
 
   Future<void> editExpense(Expense expense) async {
-    await _client.from('expenses').update({
-      'description': expense.description,
-      'amount': expense.amount,
-      'date': expense.date.toIso8601String(),
-      'account_id': expense.accountId,
-      'category': expense.category,
-      'tags': expense.tags,
-      'recurring_interval_days': expense.recurringIntervalDays,
-    }).eq('id', expense.id);
+    await _client
+        .from('expenses')
+        .update({
+          'description': expense.description,
+          'amount': expense.amount,
+          'date': expense.date.toIso8601String(),
+          'account_id': expense.accountId,
+          'category': expense.category,
+          'tags': expense.tags,
+          'recurring_interval_days': expense.recurringIntervalDays,
+        })
+        .eq('id', expense.id);
   }
 
   Future<void> addAccount(Account account) async {
@@ -68,14 +85,20 @@ class SupabaseApiService {
   }
 
   Future<void> updateAccount(Account account) async {
-    await _client.from('accounts').update({
-      'name': account.name,
-      'debit_balance': account.debitBalance,
-      'credit_balance': account.creditBalance,
-    }).eq('id', account.id);
+    await _client
+        .from('accounts')
+        .update({
+          'name': account.name,
+          'debit_balance': account.debitBalance,
+          'credit_balance': account.creditBalance,
+        })
+        .eq('id', account.id);
   }
 
-  Future<void> addBankSync(String accountId, Map<String, dynamic> syncData) async {
+  Future<void> addBankSync(
+    String accountId,
+    Map<String, dynamic> syncData,
+  ) async {
     await _client.from('bank_syncs').insert({
       'account_id': accountId,
       ...syncData,

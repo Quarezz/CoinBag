@@ -34,7 +34,7 @@ This document outlines the detailed plan to achieve the Minimum Viable Product (
 *   **Status:** Basic dashboard screen exists. Displays a spending chart and upcoming bills using mock data.
 *   **Open Tasks:**
     *   **Data Integration:**
-        *   [ ] **[Client/Backend]** Integrate `SupabaseApiService.fetchDashboardInfo` to get real data:
+        *   [x] **[Client/Backend]** Integrate `SupabaseApiService.fetchDashboardInfo` to get real data:
             *   **Requirement:** The dashboard should display dynamic data fetched from the backend, not mock data.
             *   **Client:** Modify `DashboardScreen` to call a new method in `SupabaseApiService` (e.g., `fetchDashboardSummary`). Update the screen's state with the fetched data.
             *   **Backend:** Create a Supabase database function (RPC) na med `fetch_dashboard_info` (as mentioned in PRD) or a view. This function should aggregate:
@@ -42,10 +42,10 @@ This document outlines the detailed plan to achieve the Minimum Viable Product (
                 *   Balances from user-defined accounts (sum of `debitBalance - creditBalance` from the `accounts` table for the current user).
                 *   Information for "Upcoming Bills" (derived from recurring expenses).
                 *   Ensure RLS protects this function/view.
-        *   [ ] **[Client]** Modify `SpendingChart` to accept and display real spending data:
+        *   [x] **[Client]** Modify `SpendingChart` to accept and display real spending data:
             *   **Requirement:** The chart should visualize actual spending trends.
             *   **Implementation:** Update the `SpendingChart` widget to accept a list of data points (e.g., date and amount) and render them. This data will come from the `fetchDashboardInfo` call.
-        *   [ ] **[Client]** Replace mock `_upcomingBills` with real data:
+        *   [x] **[Client]** Replace mock `_upcomingBills` with real data:
             *   **Requirement:** Show actual upcoming bills based on recurring expenses.
             *   **Implementation:** Process the recurring expenses data fetched via `fetchDashboardInfo`. Calculate next due dates and amounts for upcoming bills. Update the UI to list these bills.
     *   **Account Balances:**
