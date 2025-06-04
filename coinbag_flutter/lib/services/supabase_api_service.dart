@@ -36,6 +36,9 @@ class SupabaseApiService {
       'amount': expense.amount,
       'date': expense.date.toIso8601String(),
       'account_id': expense.accountId,
+      'category': expense.category,
+      'tags': expense.tags,
+      'recurring_interval_days': expense.recurringIntervalDays,
     });
   }
 
@@ -49,6 +52,9 @@ class SupabaseApiService {
       'amount': expense.amount,
       'date': expense.date.toIso8601String(),
       'account_id': expense.accountId,
+      'category': expense.category,
+      'tags': expense.tags,
+      'recurring_interval_days': expense.recurringIntervalDays,
     }).eq('id', expense.id);
   }
 
@@ -83,6 +89,9 @@ class SupabaseApiService {
       amount: (r['amount'] as num).toDouble(),
       date: DateTime.parse(r['date'] as String),
       accountId: r['account_id'] as String,
+      category: r['category'] as String?,
+      tags: (r['tags'] as List<dynamic>?)?.cast<String>() ?? <String>[],
+      recurringIntervalDays: r['recurring_interval_days'] as int?,
     );
   }
 }

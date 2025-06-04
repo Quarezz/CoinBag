@@ -11,6 +11,7 @@ CoinBag is a cross platform expense tracker built with Flutter. The app allows u
 - Manage multiple accounts with separate balances
 - Export and import data via CSV
 - Sync data to the cloud via Supabase
+- Rich expense entry with categories, tags and recurring expenses
 
 ## Technical Overview
 
