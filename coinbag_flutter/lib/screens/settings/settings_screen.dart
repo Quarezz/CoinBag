@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
 import 'category_settings_screen.dart';
 import 'tag_settings_screen.dart';
 import 'automatic_rules_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  final AuthService authService;
+  final VoidCallback onLogout;
+
+  const SettingsScreen({
+    Key? key,
+    required this.authService,
+    required this.onLogout,
+  }) : super(key: key);
 
   Future<void> _load() async {
     await Future.delayed(const Duration(milliseconds: 500));
@@ -55,6 +63,15 @@ class SettingsScreen extends StatelessWidget {
                       builder: (_) => const AutomaticRulesScreen(),
                     ),
                   );
+                },
+              ),
+              const Divider(),
+              ListTile(
+                title: const Text('Sign Out'),
+                leading: const Icon(Icons.logout),
+                onTap: () async {
+                  await authService.signOut();
+                  onLogout();
                 },
               ),
             ],
