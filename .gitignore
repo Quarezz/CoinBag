@@ -1,0 +1,5 @@
+coinbag_flutter/.env
+.env
+.dart_tool/
+.flutter-plugins-dependencies
+build/

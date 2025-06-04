@@ -1,3 +1,4 @@
+import 'package:coinbag_flutter/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:coinbag_flutter/main.dart';
@@ -31,8 +32,10 @@ void main() {
       expect(find.text('Recurring interval (days)'), findsOneWidget);
     });
 
-    testWidgets('Account screen shows login form when signed out', (tester) async {
-      await tester.pumpWidget(const MaterialApp(home: AccountScreen()));
+    testWidgets('Account screen shows login form when signed out',
+        (tester) async {
+      await tester.pumpWidget(MaterialApp(
+          home: AccountScreen(authService: AuthService(), onLogout: () {})));
       expect(find.text('Accounts'), findsOneWidget);
       expect(find.text('Login'), findsOneWidget);
     });
