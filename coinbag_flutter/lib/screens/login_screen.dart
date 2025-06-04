@@ -5,7 +5,13 @@ import '../services/auth_service.dart';
 class LoginScreen extends StatefulWidget {
   final AuthService authService;
   final VoidCallback onLogin;
-  const LoginScreen({Key? key, required this.authService, required this.onLogin}) : super(key: key);
+  final bool allowSkip;
+  const LoginScreen({
+    Key? key,
+    required this.authService,
+    required this.onLogin,
+    this.allowSkip = false,
+  }) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -16,6 +22,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _loading = false;
   String? _error;
+
+  Future<void> _skip() async {
+    setState(() => _loading = true);
+    await widget.authService.signInMock('demo@example.com');
+    widget.onLogin();
+  }
 
   Future<void> _signIn() async {
     setState(() {
@@ -83,7 +95,12 @@ class _LoginScreenState extends State<LoginScreen> {
             key: const Key('signupButton'),
             onPressed: _loading ? null : _signUp,
             child: const Text('Sign Up'),
-          )
+          ),
+          if (widget.allowSkip)
+            TextButton(
+              onPressed: _loading ? null : _skip,
+              child: const Text('Skip'),
+            )
         ],
       ),
     );
