@@ -3,6 +3,8 @@ import 'screens/dashboard_screen.dart';
 import 'screens/expenses_list_screen.dart';
 import 'screens/add_expense_screen.dart';
 import 'screens/account_screen.dart';
+import 'screens/login_screen.dart';
+import 'services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'theme.dart';
 
@@ -15,21 +17,39 @@ Future<void> main() async {
   runApp(const CoinBagApp());
 }
 
-class CoinBagApp extends StatelessWidget {
+class CoinBagApp extends StatefulWidget {
   const CoinBagApp({Key? key}) : super(key: key);
+
+  @override
+  State<CoinBagApp> createState() => _CoinBagAppState();
+}
+
+class _CoinBagAppState extends State<CoinBagApp> {
+  final AuthService _auth = AuthService();
+
+  void _refresh() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'CoinBag',
       theme: lightTheme,
-      home: const HomePage(),
+      home: _auth.isLoggedIn
+          ? HomePage(authService: _auth, onLogout: _refresh)
+          : LoginScreen(
+              authService: _auth,
+              onLogin: _refresh,
+              allowSkip: true,
+            ),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final AuthService authService;
+  final VoidCallback onLogout;
+  const HomePage({Key? key, required this.authService, required this.onLogout})
+      : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -38,12 +58,21 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _index = 0;
 
-  final _screens = const [
-    DashboardScreen(),
-    ExpensesListScreen(),
-    AddExpenseScreen(),
-    AccountScreen(),
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      const DashboardScreen(),
+      const ExpensesListScreen(),
+      const AddExpenseScreen(),
+      AccountScreen(
+        authService: widget.authService,
+        onLogout: widget.onLogout,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
