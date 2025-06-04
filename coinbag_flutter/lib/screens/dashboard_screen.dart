@@ -20,32 +20,46 @@ class DashboardScreen extends StatelessWidget {
             dueDate: DateTime.now().add(const Duration(days: 12))),
       ];
 
+  Future<void> _load() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text(
-            'Spending Over Time',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return FutureBuilder<void>(
+      future: _load(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return Scaffold(
+          appBar: AppBar(title: const Text('Dashboard')),
+          body: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              const Text(
+                'Spending Over Time',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 200, child: SpendingChart(data: _spending)),
+              const SizedBox(height: 16),
+              const Text(
+                'Upcoming Bills',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              ..._upcomingBills.map(
+                (b) => ListTile(
+                  title: Text(b.description),
+                  subtitle: Text(
+                      '\$${b.amount.toStringAsFixed(2)} due ${b.dueDate.month}/${b.dueDate.day}/${b.dueDate.year}'),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 200, child: SpendingChart(data: _spending)),
-          const SizedBox(height: 16),
-          const Text(
-            'Upcoming Bills',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          ..._upcomingBills.map(
-            (b) => ListTile(
-              title: Text(b.description),
-              subtitle: Text(
-                  '\$${b.amount.toStringAsFixed(2)} due ${b.dueDate.month}/${b.dueDate.day}/${b.dueDate.year}'),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
