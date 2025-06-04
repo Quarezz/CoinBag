@@ -315,6 +315,10 @@ This document outlines the detailed plan to achieve the Minimum Viable Product (
     *   **Requirement:** All services and plugins must be correctly initialized and available.
     *   **Client:** Ensure `IapService` is correctly injected/available where premium checks are needed. Verify Supabase client initialization in `main.dart`.
     *   **Backend:** Ensure any backend setup (e.g., Supabase functions deployment, initial data seeding if any) is documented and repeatable.
+*   [ ] **[Client/Backend]** FVM Build Verification:
+    *   **Requirement:** Ensure the Flutter project builds using the version specified in `.fvm/fvm_config.json`.
+    *   **Implementation:** Run `fvm install`, `fvm flutter pub get`, and attempt `fvm flutter build apk` (or `fvm flutter build web`). Record any failures due to blocked artifact downloads and update this plan accordingly.
+    *   **Open Question:** How should CI handle Flutter artifact downloads when network access is restricted?
 *   [ ] **[Client/Backend]** Code Quality & Cleanup:
     *   **Requirement:** Maintainable and clean codebase.
     *   **Client:** Address all `TODO`s relevant to MVP. Remove unused mock data/placeholders. Resolve linter warnings/errors (`flutter analyze`). Add comments for complex logic.
