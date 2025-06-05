@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+* Follow CLEAN architecture
+  * Keep Data and Domain separated
+  * For business logic use Repositories
+  * Make sure to always have an abstract Repository definition with a seprate Impl class
+* Never have networking in widgets code
+* User *Service semantics only for helper types
+* Put Repositories to /coinbag_flutter/lib/domain/repositories
+* Put Data entities to /coinbag_flutter/lib/data 

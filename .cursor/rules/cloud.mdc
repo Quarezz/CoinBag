@@ -1,6 +1,8 @@
 ---
-description: 
+description: cloud, backend, database, networking, db
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
-use [supabase_setup.md](mdc:docs/supabase_setup.md) for backend reference
+Use supabase cli for working with backend
+see /supabase folder for the cloud project
+Use [database.md](mdc:docs/database.md) for DB reference
