@@ -4,6 +4,7 @@ import 'package:coinbag_flutter/domain/repositories/auth/auth_repository.dart';
 import 'package:coinbag_flutter/data/models/expense.dart';
 import 'add_expense_screen.dart';
 import '../core/service_locator.dart';
+import 'edit_expense_screen.dart';
 
 class ExpensesListScreen extends StatefulWidget {
   const ExpensesListScreen({Key? key}) : super(key: key);
@@ -13,8 +14,7 @@ class ExpensesListScreen extends StatefulWidget {
 }
 
 class _ExpensesListScreenState extends State<ExpensesListScreen> {
-  late ExpenseRepository _expenseRepository; // Added
-  late AuthRepository _authRepository; // Added
+  late ExpenseRepository _expenseRepository;
 
   List<Expense> _expenses = [];
   bool _loading = true;
@@ -26,8 +26,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
   @override
   void initState() {
     super.initState();
-    _expenseRepository = getIt<ExpenseRepository>(); // Added
-    _authRepository = getIt<AuthRepository>(); // Added
+    _expenseRepository = getIt<ExpenseRepository>();
     _loadExpenses();
   }
 
@@ -45,22 +44,8 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
       }
     });
 
-    final accountId =
-        _authRepository.currentUserId; // Changed to _authRepository
-    if (accountId == null) {
-      if (mounted) {
-        setState(() {
-          _error = "User not logged in. Cannot fetch expenses.";
-          _loading = false;
-        });
-      }
-      return;
-    }
-
     try {
       final newExpenses = await _expenseRepository.fetchExpenses(
-        // Changed to _expenseRepository
-        accountId: accountId,
         page: _currentPage,
         pageSize: _pageSize,
       );
@@ -161,14 +146,31 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            // TODO: Add onTap to navigate to expense detail screen or edit screen
+            onTap: () async {
+              final result = await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => EditExpenseScreen(expense: expense),
+                ),
+              );
+              if (result == true) {
+                _loadExpenses();
+              }
+            },
           );
         },
       );
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Expenses')),
+      appBar: AppBar(
+        title: const Text('Expenses'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => _loadExpenses(),
+          ),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: () => _loadExpenses(), // Pull to refresh
         child: body,
@@ -177,11 +179,9 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
         onPressed: () async {
           // Navigate to AddExpenseScreen. It will need ExpenseRepository and AuthRepository (for accountId).
           // For now, it might break if AddExpenseScreen is not updated yet.
-          final result = await Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const AddExpenseScreen(),
-            ), // TODO: Update AddExpenseScreen constructor
-          );
+          final result = await Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const AddExpenseScreen()));
           if (result == true) {
             // Assuming AddExpenseScreen returns true on success
             _loadExpenses(); // Refresh the list

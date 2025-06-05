@@ -1,3 +1,4 @@
+import 'package:coinbag_flutter/data/models/tag.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:coinbag_flutter/data/models/expense.dart';
 import 'package:coinbag_flutter/data/models/account.dart';
@@ -13,47 +14,33 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
   SupabaseNetworkDataSource(this._client);
 
   @override
-  Future<Map<String, dynamic>> fetchDashboardInfo(String accountId) async {
+  Future<Map<String, dynamic>> fetchDashboardInfo({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
     developer.log(
-      'Fetching dashboard info for accountId: $accountId',
+      'Fetching dashboard info via RPC with date range: $startDate - $endDate',
       name: _logName,
     );
     try {
       final data = await _client
-          .from('dashboard_info')
-          .select<Map<String, dynamic>>()
-          .eq('account_id', accountId)
+          .rpc(
+            'fetch_dashboard_info',
+            params: {
+              'p_start_date': startDate.toIso8601String(),
+              'p_end_date': endDate.toIso8601String(),
+            },
+          )
           .single();
-      developer.log(
-        'Successfully fetched dashboard info for accountId: $accountId. Data: $data',
-        name: _logName,
-      );
-      return data;
-    } catch (e, s) {
-      developer.log(
-        'Error fetching dashboard info for accountId: $accountId',
-        name: _logName,
-        error: e,
-        stackTrace: s,
-      );
-      rethrow;
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> fetchDashboardSummary() async {
-    developer.log('Fetching dashboard summary via RPC', name: _logName);
-    try {
-      final data = await _client.rpc('fetch_dashboard_info').single();
       final result = Map<String, dynamic>.from(data);
       developer.log(
-        'Successfully fetched dashboard summary. Data: $result',
+        'Successfully fetched dashboard info. Data: $result',
         name: _logName,
       );
       return result;
     } catch (e, s) {
       developer.log(
-        'Error fetching dashboard summary via RPC',
+        'Error fetching dashboard info via RPC',
         name: _logName,
         error: e,
         stackTrace: s,
@@ -63,13 +50,9 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
   }
 
   @override
-  Future<List<Expense>> fetchExpenses({
-    required String accountId,
-    int page = 0,
-    int pageSize = 20,
-  }) async {
+  Future<List<Expense>> fetchExpenses({int page = 0, int pageSize = 20}) async {
     developer.log(
-      'Fetching expenses for accountId: $accountId, page: $page, pageSize: $pageSize',
+      'Fetching expenses for all accounts, page: $page, pageSize: $pageSize',
       name: _logName,
     );
     try {
@@ -78,18 +61,17 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
       final data = await _client
           .from('expenses')
           .select<List<Map<String, dynamic>>>()
-          .eq('account_id', accountId)
           .range(from, to)
           .order('date', ascending: false);
       final expenses = data.map(_mapExpense).toList();
       developer.log(
-        'Successfully fetched ${expenses.length} expenses for accountId: $accountId',
+        'Successfully fetched ${expenses.length} expenses for all accounts',
         name: _logName,
       );
       return expenses;
     } catch (e, s) {
       developer.log(
-        'Error fetching expenses for accountId: $accountId',
+        'Error fetching expenses for all accounts',
         name: _logName,
         error: e,
         stackTrace: s,
@@ -100,19 +82,25 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
 
   @override
   Future<void> addExpense(Expense expense) async {
-    developer.log(
-      'Adding expense: ${expense.id} for accountId: ${expense.accountId}\n${_expenseToMap(expense)}',
-      name: _logName,
-    );
+    developer.log('Adding expense via RPC: ${expense.id}', name: _logName);
     try {
-      await _client.from('expenses').insert(_expenseToMap(expense));
+      final params = {
+        'p_id': expense.id,
+        'p_description': expense.description,
+        'p_amount': expense.amount,
+        'p_date': expense.date.toIso8601String(),
+        'p_account_id': expense.accountId,
+        'p_category_id': expense.categoryId,
+        'p_tags': expense.tags.isEmpty ? null : expense.tags,
+      };
+      await _client.rpc('create_expense', params: params);
       developer.log(
-        'Successfully added expense: ${expense.id}',
+        'Successfully called create_expense RPC for: ${expense.id}',
         name: _logName,
       );
     } catch (e, s) {
       developer.log(
-        'Error adding expense: ${expense.id}',
+        'Error adding expense via RPC: ${expense.id}',
         name: _logName,
         error: e,
         stackTrace: s,
@@ -123,13 +111,17 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
 
   @override
   Future<void> removeExpense(String id) async {
-    developer.log('Removing expense: $id', name: _logName);
+    developer.log('Removing expense via RPC: $id', name: _logName);
     try {
-      await _client.from('expenses').delete().eq('id', id);
-      developer.log('Successfully removed expense: $id', name: _logName);
+      final params = {'p_id': id};
+      await _client.rpc('delete_expense', params: params);
+      developer.log(
+        'Successfully called delete_expense RPC for: $id',
+        name: _logName,
+      );
     } catch (e, s) {
       developer.log(
-        'Error removing expense: $id',
+        'Error removing expense via RPC: $id',
         name: _logName,
         error: e,
         stackTrace: s,
@@ -140,19 +132,24 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
 
   @override
   Future<void> editExpense(Expense expense) async {
-    developer.log('Editing expense: ${expense.id}', name: _logName);
+    developer.log('Editing expense via RPC: ${expense.id}', name: _logName);
     try {
-      await _client
-          .from('expenses')
-          .update(_expenseToMap(expense))
-          .eq('id', expense.id);
+      final params = {
+        'p_id': expense.id,
+        'p_description': expense.description,
+        'p_amount': expense.amount,
+        'p_date': expense.date.toIso8601String(),
+        'p_category_id': expense.categoryId,
+        'p_tags': expense.tags.isEmpty ? null : expense.tags,
+      };
+      await _client.rpc('update_expense', params: params);
       developer.log(
-        'Successfully edited expense: ${expense.id}',
+        'Successfully called update_expense RPC for: ${expense.id}',
         name: _logName,
       );
     } catch (e, s) {
       developer.log(
-        'Error editing expense: ${expense.id}',
+        'Error editing expense via RPC: ${expense.id}',
         name: _logName,
         error: e,
         stackTrace: s,
@@ -163,24 +160,21 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
 
   @override
   Future<void> addAccount(Account account) async {
-    developer.log(
-      'Adding account: ${account.id} - ${account.name}',
-      name: _logName,
-    );
+    developer.log('Adding account via RPC: ${account.name}', name: _logName);
     try {
-      await _client.from('accounts').insert({
-        'id': account.id,
+      final params = {
         'name': account.name,
-        'debit_balance': account.debitBalance,
-        'credit_balance': account.creditBalance,
-      });
+        'initial_debit_balance': account.debitBalance,
+        'initial_credit_balance': account.creditBalance,
+      };
+      await _client.rpc('create_account', params: params);
       developer.log(
-        'Successfully added account: ${account.id}',
+        'Successfully called create_account RPC for: ${account.name}',
         name: _logName,
       );
     } catch (e, s) {
       developer.log(
-        'Error adding account: ${account.id}',
+        'Error calling create_account RPC for: ${account.name}',
         name: _logName,
         error: e,
         stackTrace: s,
@@ -192,25 +186,24 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
   @override
   Future<void> updateAccount(Account account) async {
     developer.log(
-      'Updating account: ${account.id} - ${account.name}',
+      'Updating account via RPC: ${account.id} - ${account.name}',
       name: _logName,
     );
     try {
-      await _client
-          .from('accounts')
-          .update({
-            'name': account.name,
-            'debit_balance': account.debitBalance,
-            'credit_balance': account.creditBalance,
-          })
-          .eq('id', account.id);
+      final params = {
+        'p_account_id': account.id,
+        'p_new_name': account.name,
+        'p_debit_balance': account.debitBalance,
+        'p_credit_balance': account.creditBalance,
+      };
+      await _client.rpc('update_account', params: params);
       developer.log(
-        'Successfully updated account: ${account.id}',
+        'Successfully called update_account RPC for: ${account.id}',
         name: _logName,
       );
     } catch (e, s) {
       developer.log(
-        'Error updating account: ${account.id}',
+        'Error calling update_account RPC for: ${account.id}',
         name: _logName,
         error: e,
         stackTrace: s,
@@ -473,6 +466,61 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
     } catch (e, s) {
       developer.log(
         'Error calling RPC delete_category for id $categoryId',
+        name: _logName,
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteAccount(String accountId) async {
+    developer.log('Deleting account via RPC: $accountId', name: _logName);
+    try {
+      final params = {'p_account_id': accountId};
+      await _client.rpc('delete_account', params: params);
+      developer.log(
+        'Successfully called delete_account RPC for: $accountId',
+        name: _logName,
+      );
+    } catch (e, s) {
+      developer.log(
+        'Error calling delete_account RPC for: $accountId',
+        name: _logName,
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<Tag>> fetchTags() async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) {
+      throw Exception('User not authenticated.');
+    }
+    developer.log('Fetching tags for userId: $userId', name: _logName);
+    try {
+      final data = await _client
+          .from('tags')
+          .select<List<Map<String, dynamic>>>()
+          .eq('user_id', userId);
+      final tags = data
+          .map(
+            (e) => Tag(
+              id: e['id'] as String,
+              name: e['name'] as String,
+              color: e['color_hex'] as String,
+            ),
+          )
+          .toList();
+      developer.log('Successfully fetched ${tags.length} tags', name: _logName);
+      return tags;
+    } catch (e, s) {
+      developer.log(
+        'Error fetching tags',
         name: _logName,
         error: e,
         stackTrace: s,

@@ -7,12 +7,13 @@ class DashboardRepositoryImpl implements DashboardRepository {
   DashboardRepositoryImpl(this._networkDataSource);
 
   @override
-  Future<Map<String, dynamic>> fetchDashboardInfo(String accountId) {
-    return _networkDataSource.fetchDashboardInfo(accountId);
-  }
-
-  @override
-  Future<Map<String, dynamic>> fetchDashboardSummary() {
-    return _networkDataSource.fetchDashboardSummary();
+  Future<Map<String, dynamic>> fetchDashboardInfo({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) {
+    return _networkDataSource.fetchDashboardInfo(
+      startDate: startDate,
+      endDate: endDate,
+    );
   }
 }

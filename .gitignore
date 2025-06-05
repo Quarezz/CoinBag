@@ -8,4 +8,4 @@ coinbag_flutter/.env*
 .flutter-plugins-dependencies
 build/
 
-supabase/
+/supabase

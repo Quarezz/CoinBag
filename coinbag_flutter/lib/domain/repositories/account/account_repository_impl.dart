@@ -18,6 +18,11 @@ class AccountRepositoryImpl implements AccountRepository {
   }
 
   @override
+  Future<void> deleteAccount(String accountId) {
+    return _networkDataSource.deleteAccount(accountId);
+  }
+
+  @override
   Future<List<Account>> fetchAccounts() {
     return _networkDataSource.fetchAccounts();
   }
