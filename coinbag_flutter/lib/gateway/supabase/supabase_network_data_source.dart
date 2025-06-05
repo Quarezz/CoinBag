@@ -476,4 +476,25 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
       rethrow;
     }
   }
+
+  @override
+  Future<void> deleteAccount(String accountId) async {
+    developer.log('Deleting account via RPC: $accountId', name: _logName);
+    try {
+      final params = {'p_account_id': accountId};
+      await _client.rpc('delete_account', params: params);
+      developer.log(
+        'Successfully called delete_account RPC for: $accountId',
+        name: _logName,
+      );
+    } catch (e, s) {
+      developer.log(
+        'Error calling delete_account RPC for: $accountId',
+        name: _logName,
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
+  }
 }
