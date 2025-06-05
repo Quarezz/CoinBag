@@ -80,11 +80,7 @@ Individuals seeking a mobile-first solution to:
         *   Assign multiple tags to an expense (select existing or create new).
         *   Selected tags are persisted with the expense (e.g., `TEXT[]` in Supabase).
         *   **Open Question:** Similar to categories, how should tags be fetched/managed if synced? (Potential architectural decision).
-    *   **Recurring Expenses:**
-        *   Mark an expense as recurring with a defined interval (e.g., `recurringIntervalDays`).
-        *   Recurrence data is saved with the expense.
-        *   Recurring expenses should be identifiable in lists.
-        *   **Open Question:** How detailed should forecasting based on future occurrences of recurring expenses be for MVP dashboard/views?
+
 
 ### 4.4. Account Management (User-defined Accounts)
 *   **View Accounts:** Users can view a list of their user-defined accounts (e.g., "Cash Wallet," "Savings") with names and current balances.

@@ -59,7 +59,7 @@ This document outlines the detailed plan to achieve the Minimum Viable Product (
     *   `ExpensesListScreen`: Basic structure exists.
     *   `AddExpenseScreen`: Basic UI structure exists with text fields.
     *   `SupabaseApiService`: Has methods for `addExpense`, `fetchExpenses`, `editExpense`, `removeExpense`.
-    *   `Expense` model: Supports ID, description, amount, date, accountId, category, tags, recurringIntervalDays.
+    *   `Expense` model: Supports ID, description, amount, date, accountId, category, tags.
 *   **Open Tasks:**
     *   **Add/Edit Expense Screen (`add_expense_screen.dart` and new Edit Screen/Dialog):**
         *   [ ] **[Client]** Implement form handling and validation:
@@ -88,13 +88,6 @@ This document outlines the detailed plan to achieve the Minimum Viable Product (
             *   [ ] **[Client/Backend]** Persist selected tags with the expense:
                 *   **Client:** Ensure the list of selected tag names or IDs is included in the `Expense` object.
                 *   **Backend:** The `expenses` table in Supabase needs a column for tags (e.g., `tags TEXT[]` if using a PostgreSQL array). Ensure `addExpense` and `editExpense` handle this.
-        *   **Recurring Expense:**
-            *   [ ] **[Client]** Provide UI to set `recurringIntervalDays`:
-                *   **Requirement:** Users should be able to mark an expense as recurring.
-                *   **Implementation:** Add a switch or dropdown in `AddExpenseScreen`/Edit screen to enable recurrence and input `recurringIntervalDays` (e.g., 7 for weekly, 30 for monthly).
-            *   [ ] **[Client/Backend]** Ensure recurrence data is saved with the expense:
-                *   **Client:** Include `recurringIntervalDays` in the `Expense` object.
-                *   **Backend:** The `expenses` table needs a `recurring_interval_days INTEGER NULLABLE` column.
     *   **Expenses List Screen (`expenses_list_screen.dart`):**
         *   [ ] **[Client]** Call `SupabaseApiService.fetchExpenses` to load real expense data:
             *   **Requirement:** The screen must display actual expenses for the logged-in user.
