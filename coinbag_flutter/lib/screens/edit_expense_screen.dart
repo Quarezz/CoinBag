@@ -3,7 +3,7 @@ import 'dart:developer' as developer;
 import 'package:coinbag_flutter/domain/repositories/auth/auth_repository.dart';
 import 'package:coinbag_flutter/domain/repositories/expense/expense_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart'; // Assuming GetIt for DI
+import 'package:get_it/get_it.dart';
 
 import '../../data/models/account.dart';
 import '../../data/models/category.dart';
@@ -12,25 +12,24 @@ import '../../data/models/tag.dart';
 import '../domain/repositories/account/account_repository.dart';
 import '../domain/repositories/categories/category_repository.dart';
 import '../domain/repositories/tags/tag_repository.dart';
-import 'package:uuid/uuid.dart';
 
-class AddExpenseScreen extends StatefulWidget {
-  const AddExpenseScreen({Key? key}) : super(key: key);
+class EditExpenseScreen extends StatefulWidget {
+  final Expense expense;
+  const EditExpenseScreen({Key? key, required this.expense}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
-  _AddExpenseScreenState createState() => _AddExpenseScreenState();
+  _EditExpenseScreenState createState() => _EditExpenseScreenState();
 }
 
-class _AddExpenseScreenState extends State<AddExpenseScreen> {
+class _EditExpenseScreenState extends State<EditExpenseScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _descriptionController = TextEditingController();
-  final _amountController = TextEditingController();
+  late TextEditingController _descriptionController;
+  late TextEditingController _amountController;
 
   late final CategoryRepository _categoryRepository;
   late final AccountRepository _accountRepository;
   late final ExpenseRepository _expenseRepository;
-  late final AuthRepository _authRepository;
   late final TagRepository _tagRepository;
 
   List<Category> _categories = [];
@@ -45,15 +44,21 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   void initState() {
     super.initState();
+    _descriptionController = TextEditingController(
+      text: widget.expense.description,
+    );
+    _amountController = TextEditingController(
+      text: widget.expense.amount.toString(),
+    );
+
     _categoryRepository = GetIt.I.get<CategoryRepository>();
     _accountRepository = GetIt.I.get<AccountRepository>();
     _expenseRepository = GetIt.I.get<ExpenseRepository>();
-    _authRepository = GetIt.I.get<AuthRepository>();
     _tagRepository = GetIt.I.get<TagRepository>();
-    _fetchData();
+    _fetchDataAndSetInitialValues();
   }
 
-  Future<void> _fetchData() async {
+  Future<void> _fetchDataAndSetInitialValues() async {
     setState(() {
       _isLoading = true;
     });
@@ -61,6 +66,16 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       _categories = await _categoryRepository.getCategories();
       _accounts = await _accountRepository.fetchAccounts();
       _tags = await _tagRepository.getTags();
+
+      _selectedCategory = _categories.firstWhere(
+        (c) => c.id == widget.expense.categoryId,
+      );
+      _selectedAccount = _accounts.firstWhere(
+        (a) => a.id == widget.expense.accountId,
+      );
+      _selectedTags.addAll(
+        _tags.where((t) => widget.expense.tags.contains(t.id)),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -92,34 +107,31 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       });
 
       try {
-        final expense = Expense(
-          id: const Uuid().v4(),
-          userId: _authRepository.currentUserId!,
-          accountId: _selectedAccount!.id,
+        final updatedExpense = widget.expense.copyWith(
           description: _descriptionController.text,
           amount: double.parse(_amountController.text),
-          date: DateTime.now(),
           categoryId: _selectedCategory!.id,
+          accountId: _selectedAccount!.id,
           tags: _selectedTags.map((t) => t.id).toList(),
         );
 
-        await _expenseRepository.addExpense(expense);
+        await _expenseRepository.editExpense(updatedExpense);
 
         developer.log(
-          'Expense to save: ${expense.description}, ${expense.amount}, ${expense.categoryId}',
+          'Expense to save: ${updatedExpense.description}, ${updatedExpense.amount}, ${updatedExpense.categoryId}',
         );
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Expense added successfully!')),
+            const SnackBar(content: Text('Expense updated successfully!')),
           );
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(true); // Return true to indicate success
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Failed to save expense: $e')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update expense: $e')),
+          );
         }
       } finally {
         if (mounted) {
@@ -141,7 +153,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Expense')),
+      appBar: AppBar(title: const Text('Edit Expense')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -210,7 +222,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                       isExpanded: true,
                       items: _categories.map((Category category) {
                         return DropdownMenuItem<Category>(
-                          value: category, // Uses the Category object itself
+                          value: category,
                           child: Text(category.name),
                         );
                       }).toList(),
@@ -231,7 +243,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     Wrap(
                       spacing: 8.0,
                       children: _tags.map((tag) {
-                        final isSelected = _selectedTags.contains(tag);
+                        final isSelected = _selectedTags.any(
+                          (selectedTag) => selectedTag.id == tag.id,
+                        );
                         return FilterChip(
                           label: Text(tag.name),
                           selected: isSelected,
@@ -240,7 +254,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                               if (selected) {
                                 _selectedTags.add(tag);
                               } else {
-                                _selectedTags.remove(tag);
+                                _selectedTags.removeWhere(
+                                  (t) => t.id == tag.id,
+                                );
                               }
                             });
                           },
@@ -252,7 +268,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         ? const Center(child: CircularProgressIndicator())
                         : ElevatedButton(
                             onPressed: _saveExpense,
-                            child: const Text('Save Expense'),
+                            child: const Text('Save Changes'),
                           ),
                   ],
                 ),

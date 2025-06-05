@@ -8,16 +8,8 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   ExpenseRepositoryImpl(this._networkDataSource);
 
   @override
-  Future<List<Expense>> fetchExpenses({
-    required String accountId,
-    int page = 0,
-    int pageSize = 20,
-  }) {
-    return _networkDataSource.fetchExpenses(
-      accountId: accountId,
-      page: page,
-      pageSize: pageSize,
-    );
+  Future<List<Expense>> fetchExpenses({int page = 0, int pageSize = 20}) {
+    return _networkDataSource.fetchExpenses(page: page, pageSize: pageSize);
   }
 
   @override
