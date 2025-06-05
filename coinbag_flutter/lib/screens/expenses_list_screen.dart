@@ -4,6 +4,7 @@ import 'package:coinbag_flutter/domain/repositories/auth/auth_repository.dart';
 import 'package:coinbag_flutter/data/models/expense.dart';
 import 'add_expense_screen.dart';
 import '../core/service_locator.dart';
+import 'edit_expense_screen.dart';
 
 class ExpensesListScreen extends StatefulWidget {
   const ExpensesListScreen({Key? key}) : super(key: key);
@@ -145,7 +146,16 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            // TODO: Add onTap to navigate to expense detail screen or edit screen
+            onTap: () async {
+              final result = await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => EditExpenseScreen(expense: expense),
+                ),
+              );
+              if (result == true) {
+                _loadExpenses();
+              }
+            },
           );
         },
       );

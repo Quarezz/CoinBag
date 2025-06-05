@@ -14,47 +14,33 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
   SupabaseNetworkDataSource(this._client);
 
   @override
-  Future<Map<String, dynamic>> fetchDashboardInfo(String accountId) async {
+  Future<Map<String, dynamic>> fetchDashboardInfo({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
     developer.log(
-      'Fetching dashboard info for accountId: $accountId',
+      'Fetching dashboard info via RPC with date range: $startDate - $endDate',
       name: _logName,
     );
     try {
       final data = await _client
-          .from('dashboard_info')
-          .select<Map<String, dynamic>>()
-          .eq('account_id', accountId)
+          .rpc(
+            'fetch_dashboard_info',
+            params: {
+              'p_start_date': startDate.toIso8601String(),
+              'p_end_date': endDate.toIso8601String(),
+            },
+          )
           .single();
-      developer.log(
-        'Successfully fetched dashboard info for accountId: $accountId. Data: $data',
-        name: _logName,
-      );
-      return data;
-    } catch (e, s) {
-      developer.log(
-        'Error fetching dashboard info for accountId: $accountId',
-        name: _logName,
-        error: e,
-        stackTrace: s,
-      );
-      rethrow;
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> fetchDashboardSummary() async {
-    developer.log('Fetching dashboard summary via RPC', name: _logName);
-    try {
-      final data = await _client.rpc('fetch_dashboard_info').single();
       final result = Map<String, dynamic>.from(data);
       developer.log(
-        'Successfully fetched dashboard summary. Data: $result',
+        'Successfully fetched dashboard info. Data: $result',
         name: _logName,
       );
       return result;
     } catch (e, s) {
       developer.log(
-        'Error fetching dashboard summary via RPC',
+        'Error fetching dashboard info via RPC',
         name: _logName,
         error: e,
         stackTrace: s,
