@@ -19,7 +19,7 @@ To confirm that you can build the Flutter project:
    ```
 3. Attempt a build (for example an Android APK or a web build):
    ```bash
-   fvm flutter build apk    # or `fvm flutter build web --release`
+   fvm flutter build web
    ```
    The build requires network access for downloading artifacts. If the environment blocks these downloads, record the failure and raise it in the development plan.
 

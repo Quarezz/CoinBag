@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Light theme for CoinBag using a vibrant expressive color scheme.
 final ColorScheme _lightColorScheme = ColorScheme.fromSeed(
   brightness: Brightness.light,
-  seedColor: Color(0xFF6750A4),
+  seedColor: const Color(0xFF6750A4),
 );
 
 final ThemeData lightTheme = ThemeData(
@@ -13,5 +13,5 @@ final ThemeData lightTheme = ThemeData(
     backgroundColor: _lightColorScheme.primary,
     foregroundColor: _lightColorScheme.onPrimary,
   ),
-  scaffoldBackgroundColor: _lightColorScheme.background,
+  scaffoldBackgroundColor: _lightColorScheme.surface,
 );

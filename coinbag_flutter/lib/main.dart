@@ -1,26 +1,44 @@
-import 'package:flutter/foundation.dart';
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/expenses_list_screen.dart';
 import 'screens/account_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/settings/settings_screen.dart';
-import 'services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'theme.dart';
+
+// New Imports
+import 'domain/repositories/auth/auth_repository.dart';
+import 'domain/auth/authentication_status.dart';
+import 'dart:async';
+
+import 'core/service_locator.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: const String.fromEnvironment('SUPABASE_URL', defaultValue: ''),
-    anonKey:
-        const String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: ''),
+    anonKey: const String.fromEnvironment(
+      'SUPABASE_ANON_KEY',
+      defaultValue: '',
+    ),
   );
-  if (kDebugMode) {
-    print('SUPABASE_URL: ${const String.fromEnvironment('SUPABASE_URL')}');
-    print(
-        'SUPABASE_ANON_KEY: ${const String.fromEnvironment('SUPABASE_ANON_KEY')}');
-  }
+
+  setupServiceLocator();
+
+  developer.log(
+    'SUPABASE_URL: ${const String.fromEnvironment('SUPABASE_URL')}',
+    name: 'CoinBagApp',
+    level: 900,
+  );
+  developer.log(
+    'SUPABASE_ANON_KEY: ${const String.fromEnvironment('SUPABASE_ANON_KEY')}',
+    name: 'CoinBagApp',
+    level: 900,
+  );
+
   runApp(const CoinBagApp());
 }
 
@@ -32,31 +50,59 @@ class CoinBagApp extends StatefulWidget {
 }
 
 class _CoinBagAppState extends State<CoinBagApp> {
-  final AuthService _auth = AuthService();
+  late AuthRepository _authRepository;
+  late StreamSubscription<AuthenticationStatus> _authStatusSubscription;
+  AuthenticationStatus _currentStatus = AuthenticationStatus.unknown;
 
-  void _refresh() => setState(() {});
+  @override
+  void initState() {
+    super.initState();
+    _authRepository = getIt<AuthRepository>();
+    _authStatusSubscription = _authRepository.authenticationStatus.listen((
+      status,
+    ) {
+      if (mounted) {
+        setState(() {
+          _currentStatus = status;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _authStatusSubscription.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    bool isLoggedIn;
+    switch (_currentStatus) {
+      case AuthenticationStatus.authenticated:
+      case AuthenticationStatus.mockAuthenticated:
+        isLoggedIn = true;
+        break;
+      case AuthenticationStatus.unauthenticated:
+      case AuthenticationStatus.unknown:
+        isLoggedIn = false;
+        break;
+    }
+
     return MaterialApp(
       title: 'CoinBag',
       theme: lightTheme,
-      home: _auth.isLoggedIn
-          ? HomePage(authService: _auth, onLogout: _refresh)
-          : LoginScreen(
-              authService: _auth,
-              onLogin: _refresh,
-              allowSkip: true,
-            ),
+      home: isLoggedIn
+          ? HomePage(onLogout: () => setState(() {}))
+          : LoginScreen(onLogin: () => setState(() {}), allowSkip: true),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-  final AuthService authService;
   final VoidCallback onLogout;
-  const HomePage({Key? key, required this.authService, required this.onLogout})
-      : super(key: key);
+
+  const HomePage({Key? key, required this.onLogout}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -64,7 +110,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _index = 0;
-
   late final List<Widget> _screens;
 
   @override
@@ -73,14 +118,8 @@ class _HomePageState extends State<HomePage> {
     _screens = [
       const DashboardScreen(),
       const ExpensesListScreen(),
-      AccountScreen(
-        authService: widget.authService,
-        onLogout: widget.onLogout,
-      ),
-      SettingsScreen(
-        authService: widget.authService,
-        onLogout: widget.onLogout,
-      ),
+      AccountScreen(onLogout: widget.onLogout),
+      SettingsScreen(onLogout: widget.onLogout),
     ];
   }
 
@@ -95,12 +134,18 @@ class _HomePageState extends State<HomePage> {
         onTap: (i) => setState(() => _index = i),
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard), label: 'Dashboard'),
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Expenses'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance), label: 'Accounts'),
+            icon: Icon(Icons.account_balance),
+            label: 'Accounts',
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Settings'),
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
         ],
       ),
     );

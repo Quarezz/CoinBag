@@ -1,7 +1,9 @@
+import 'dart:developer' as developer;
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../models/bill.dart';
-import '../services/supabase_api_service.dart';
+import '../data/models/bill.dart';
+import '../domain/repositories/dashboard/dashboard_repository.dart';
+import '../core/service_locator.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -11,30 +13,27 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  late final SupabaseApiService _api;
+  late final DashboardRepository _dashboardRepository;
   List<double> _spending = const [];
   List<Bill> _upcomingBills = const [];
   bool _loading = true;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _api = SupabaseApiService(
-      supabaseUrl: const String.fromEnvironment(
-        'SUPABASE_URL',
-        defaultValue: '',
-      ),
-      supabaseAnonKey: const String.fromEnvironment(
-        'SUPABASE_ANON_KEY',
-        defaultValue: '',
-      ),
-    );
+    _dashboardRepository = getIt<DashboardRepository>();
     _load();
   }
 
   Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
-      final data = await _api.fetchDashboardSummary();
+      final data = await _dashboardRepository.fetchDashboardSummary();
+      if (!mounted) return;
       setState(() {
         _spending = (data['spending'] as List<dynamic>? ?? [])
             .map((e) => (e as num).toDouble())
@@ -50,6 +49,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
             )
             .toList();
       });
+    } catch (e, s) {
+      if (mounted) {
+        setState(() {
+          _error = "Failed to load dashboard data: $e";
+        });
+      }
+      developer.log(
+        "Error loading dashboard summary: $e\n$s",
+        name: 'DashboardScreen',
+        level: 900,
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -59,6 +69,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (_error != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Dashboard')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(onPressed: _load, child: const Text('Retry')),
+              ],
+            ),
+          ),
+        ),
+      );
     }
     return Scaffold(
       appBar: AppBar(title: const Text('Dashboard')),

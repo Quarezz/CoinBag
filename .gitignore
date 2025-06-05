@@ -1,5 +1,11 @@
 coinbag_flutter/.env
+coinbag_flutter/.env-local
+coinbag_flutter/.env*
 .env
+.env-local
+.env*
 .dart_tool/
 .flutter-plugins-dependencies
 build/
+
+supabase/
