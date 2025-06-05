@@ -15,6 +15,8 @@ import '../gateway/network_data_source.dart';
 import '../gateway/supabase/supabase_network_data_source.dart';
 import '../domain/services/iap_service.dart';
 import '../domain/services/bank_sync_service.dart';
+import '../domain/repositories/tags/tag_repository.dart';
+import '../domain/repositories/tags/tag_repository_impl.dart';
 
 final getIt = GetIt.instance;
 
@@ -45,6 +47,9 @@ void setupServiceLocator() {
       getIt<NetworkDataSource>(),
       getIt<AuthRepository>(),
     ),
+  );
+  getIt.registerLazySingleton<TagRepository>(
+    () => TagRepositoryImpl(getIt<NetworkDataSource>()),
   );
 
   // Services

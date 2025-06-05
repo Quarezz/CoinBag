@@ -5,9 +5,13 @@ import 'package:coinbag_flutter/domain/repositories/expense/expense_repository.d
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart'; // Assuming GetIt for DI
 
+import '../../data/models/account.dart';
 import '../../data/models/category.dart';
 import '../../data/models/expense.dart';
+import '../../data/models/tag.dart';
+import '../domain/repositories/account/account_repository.dart';
 import '../domain/repositories/categories/category_repository.dart';
+import '../domain/repositories/tags/tag_repository.dart';
 import 'package:uuid/uuid.dart';
 
 class AddExpenseScreen extends StatefulWidget {
@@ -24,39 +28,49 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _amountController = TextEditingController();
 
   late final CategoryRepository _categoryRepository;
+  late final AccountRepository _accountRepository;
   late final ExpenseRepository _expenseRepository;
   late final AuthRepository _authRepository;
+  late final TagRepository _tagRepository;
 
   List<Category> _categories = [];
   Category? _selectedCategory;
-  bool _isLoadingCategories = true;
+  List<Account> _accounts = [];
+  Account? _selectedAccount;
+  List<Tag> _tags = [];
+  final List<Tag> _selectedTags = [];
+  bool _isLoading = true;
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
     _categoryRepository = GetIt.I.get<CategoryRepository>();
+    _accountRepository = GetIt.I.get<AccountRepository>();
     _expenseRepository = GetIt.I.get<ExpenseRepository>();
     _authRepository = GetIt.I.get<AuthRepository>();
-    _fetchCategories();
+    _tagRepository = GetIt.I.get<TagRepository>();
+    _fetchData();
   }
 
-  Future<void> _fetchCategories() async {
+  Future<void> _fetchData() async {
     setState(() {
-      _isLoadingCategories = true;
+      _isLoading = true;
     });
     try {
       _categories = await _categoryRepository.getCategories();
+      _accounts = await _accountRepository.fetchAccounts();
+      _tags = await _tagRepository.getTags();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load categories: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to load data: $e')));
       }
     } finally {
       if (mounted) {
         setState(() {
-          _isLoadingCategories = false;
+          _isLoading = false;
         });
       }
     }
@@ -64,9 +78,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   Future<void> _saveExpense() async {
     if (_formKey.currentState!.validate()) {
-      if (_selectedCategory == null) {
+      if (_selectedCategory == null || _selectedAccount == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a category.')),
+          const SnackBar(
+            content: Text('Please select a category and an account.'),
+          ),
         );
         return;
       }
@@ -79,11 +95,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         final expense = Expense(
           id: const Uuid().v4(),
           userId: _authRepository.currentUserId!,
-          accountId: '',
+          accountId: _selectedAccount!.id,
           description: _descriptionController.text,
           amount: double.parse(_amountController.text),
           date: DateTime.now(),
           categoryId: _selectedCategory!.id,
+          tags: _selectedTags.map((t) => t.id).toList(),
         );
 
         await _expenseRepository.addExpense(expense);
@@ -125,7 +142,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Add Expense')),
-      body: _isLoadingCategories
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(16.0),
@@ -164,6 +181,29 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
+                    DropdownButtonFormField<Account>(
+                      value: _selectedAccount,
+                      hint: const Text('Select Account'),
+                      isExpanded: true,
+                      items: _accounts.map((Account account) {
+                        return DropdownMenuItem<Account>(
+                          value: account,
+                          child: Text(account.name),
+                        );
+                      }).toList(),
+                      onChanged: (Account? newValue) {
+                        setState(() {
+                          _selectedAccount = newValue;
+                        });
+                      },
+                      validator: (value) =>
+                          value == null ? 'Please select an account' : null,
+                      decoration: const InputDecoration(
+                        labelText: 'Account',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     DropdownButtonFormField<Category>(
                       value: _selectedCategory,
                       hint: const Text('Select Category'),
@@ -187,8 +227,25 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const TextField(
-                      decoration: InputDecoration(labelText: 'Tags (Optional'),
+                    const Text('Tags'),
+                    Wrap(
+                      spacing: 8.0,
+                      children: _tags.map((tag) {
+                        final isSelected = _selectedTags.contains(tag);
+                        return FilterChip(
+                          label: Text(tag.name),
+                          selected: isSelected,
+                          onSelected: (bool selected) {
+                            setState(() {
+                              if (selected) {
+                                _selectedTags.add(tag);
+                              } else {
+                                _selectedTags.remove(tag);
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
                     ),
                     const SizedBox(height: 32),
                     _isSaving

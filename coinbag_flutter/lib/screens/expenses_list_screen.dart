@@ -13,8 +13,7 @@ class ExpensesListScreen extends StatefulWidget {
 }
 
 class _ExpensesListScreenState extends State<ExpensesListScreen> {
-  late ExpenseRepository _expenseRepository; // Added
-  late AuthRepository _authRepository; // Added
+  late ExpenseRepository _expenseRepository;
 
   List<Expense> _expenses = [];
   bool _loading = true;
@@ -26,8 +25,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
   @override
   void initState() {
     super.initState();
-    _expenseRepository = getIt<ExpenseRepository>(); // Added
-    _authRepository = getIt<AuthRepository>(); // Added
+    _expenseRepository = getIt<ExpenseRepository>();
     _loadExpenses();
   }
 
@@ -45,22 +43,8 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
       }
     });
 
-    final accountId =
-        _authRepository.currentUserId; // Changed to _authRepository
-    if (accountId == null) {
-      if (mounted) {
-        setState(() {
-          _error = "User not logged in. Cannot fetch expenses.";
-          _loading = false;
-        });
-      }
-      return;
-    }
-
     try {
       final newExpenses = await _expenseRepository.fetchExpenses(
-        // Changed to _expenseRepository
-        accountId: accountId,
         page: _currentPage,
         pageSize: _pageSize,
       );
@@ -168,7 +152,15 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Expenses')),
+      appBar: AppBar(
+        title: const Text('Expenses'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => _loadExpenses(),
+          ),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: () => _loadExpenses(), // Pull to refresh
         child: body,

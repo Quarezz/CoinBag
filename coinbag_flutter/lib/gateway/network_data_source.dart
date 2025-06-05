@@ -1,16 +1,13 @@
 import 'package:coinbag_flutter/data/models/account.dart';
 import 'package:coinbag_flutter/data/models/expense.dart';
 import 'package:coinbag_flutter/data/models/category.dart'; // Added import
+import 'package:coinbag_flutter/data/models/tag.dart';
 
 abstract class NetworkDataSource {
   // Existing specific methods
   Future<Map<String, dynamic>> fetchDashboardInfo(String accountId);
   Future<Map<String, dynamic>> fetchDashboardSummary();
-  Future<List<Expense>> fetchExpenses({
-    required String accountId,
-    int page = 0,
-    int pageSize = 20,
-  });
+  Future<List<Expense>> fetchExpenses({int page = 0, int pageSize = 20});
   Future<void> addExpense(Expense expense);
   Future<void> removeExpense(String id);
   Future<void> editExpense(Expense expense);
@@ -27,4 +24,7 @@ abstract class NetworkDataSource {
   Future<Category> addCategory(CategoryCreationDTO category);
   Future<Category> updateCategory(CategoryUpdateDTO category);
   Future<void> deleteCategory(String categoryId);
+
+  // New Tag-specific methods
+  Future<List<Tag>> fetchTags();
 }
