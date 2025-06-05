@@ -16,6 +16,7 @@ abstract class NetworkDataSource {
   Future<void> editExpense(Expense expense);
   Future<void> addAccount(Account account);
   Future<void> updateAccount(Account account);
+  Future<void> deleteAccount(String accountId);
   Future<List<Account>> fetchAccounts();
   Future<void> addBankSync(String accountId, Map<String, dynamic> syncData);
   Future<void> upsertExpenses(List<Expense> expenses);

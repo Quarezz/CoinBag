@@ -90,6 +90,7 @@ class _CoinBagAppState extends State<CoinBagApp> {
     }
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'CoinBag',
       theme: lightTheme,
       home: isLoggedIn
