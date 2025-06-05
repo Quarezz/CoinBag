@@ -1,4 +1,4 @@
-import 'iap_service.dart';
+import './iap_service.dart'; // Path will need to be adjusted if IapService moves too
 
 class BankSyncService {
   final IapService iapService;

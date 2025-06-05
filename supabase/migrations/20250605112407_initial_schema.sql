@@ -1,0 +1,2 @@
+-- This migration's content has been moved to 20250605121011_create_initial_tables.sql
+-- and this file is intentionally left empty (or with only this comment) to avoid conflicts.
