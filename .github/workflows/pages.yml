@@ -42,7 +42,7 @@ jobs:
           fi
 
       - name: Build web
-        run: flutter build web --release --base-href $BASEHREF
+        run: flutter build web --release --base-href $BASEHREF --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_API_KEY }}
         working-directory: coinbag_flutter
 
       - name: Deploy to GitHub Pages
