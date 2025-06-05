@@ -6,3 +6,5 @@ alwaysApply: false
 Use supabase cli for working with backend
 see /supabase folder for the cloud project
 Use [database.md](mdc:docs/database.md) for DB reference
+Mutation cloud operations should be done using Functions
+Never use direct database write calls 

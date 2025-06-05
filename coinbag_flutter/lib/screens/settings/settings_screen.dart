@@ -9,22 +9,10 @@ import '../../core/service_locator.dart';
 class SettingsScreen extends StatelessWidget {
   final VoidCallback onLogout;
 
-  const SettingsScreen({Key? key, required this.onLogout}) : super(key: key);
-
-  // Future<void> _load() async { // Removed unnecessary load method
-  //   await Future.delayed(const Duration(milliseconds: 500));
-  // }
+  const SettingsScreen({super.key, required this.onLogout});
 
   @override
   Widget build(BuildContext context) {
-    // return FutureBuilder<void>( // Removed FutureBuilder
-    //   future: _load(),
-    //   builder: (context, snapshot) {
-    //     if (snapshot.connectionState != ConnectionState.done) {
-    //       return const Scaffold(
-    //         body: Center(child: CircularProgressIndicator()),
-    //       );
-    //     }
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
@@ -58,10 +46,7 @@ class SettingsScreen extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) =>
-                      const AutomaticRulesScreen(), // These sub-screens might need refactoring too
-                ),
+                MaterialPageRoute(builder: (_) => const AutomaticRulesScreen()),
               );
             },
           ),

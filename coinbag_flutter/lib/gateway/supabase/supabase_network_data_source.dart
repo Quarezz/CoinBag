@@ -163,24 +163,21 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
 
   @override
   Future<void> addAccount(Account account) async {
-    developer.log(
-      'Adding account: ${account.id} - ${account.name}',
-      name: _logName,
-    );
+    developer.log('Adding account via RPC: ${account.name}', name: _logName);
     try {
-      await _client.from('accounts').insert({
-        'id': account.id,
+      final params = {
         'name': account.name,
-        'debit_balance': account.debitBalance,
-        'credit_balance': account.creditBalance,
-      });
+        'initial_debit_balance': account.debitBalance,
+        'initial_credit_balance': account.creditBalance,
+      };
+      await _client.rpc('create_account', params: params);
       developer.log(
-        'Successfully added account: ${account.id}',
+        'Successfully called create_account RPC for: ${account.name}',
         name: _logName,
       );
     } catch (e, s) {
       developer.log(
-        'Error adding account: ${account.id}',
+        'Error calling create_account RPC for: ${account.name}',
         name: _logName,
         error: e,
         stackTrace: s,
@@ -192,25 +189,24 @@ class SupabaseNetworkDataSource implements NetworkDataSource {
   @override
   Future<void> updateAccount(Account account) async {
     developer.log(
-      'Updating account: ${account.id} - ${account.name}',
+      'Updating account via RPC: ${account.id} - ${account.name}',
       name: _logName,
     );
     try {
-      await _client
-          .from('accounts')
-          .update({
-            'name': account.name,
-            'debit_balance': account.debitBalance,
-            'credit_balance': account.creditBalance,
-          })
-          .eq('id', account.id);
+      final params = {
+        'p_account_id': account.id,
+        'p_new_name': account.name,
+        'p_debit_balance': account.debitBalance,
+        'p_credit_balance': account.creditBalance,
+      };
+      await _client.rpc('update_account', params: params);
       developer.log(
-        'Successfully updated account: ${account.id}',
+        'Successfully called update_account RPC for: ${account.id}',
         name: _logName,
       );
     } catch (e, s) {
       developer.log(
-        'Error updating account: ${account.id}',
+        'Error calling update_account RPC for: ${account.id}',
         name: _logName,
         error: e,
         stackTrace: s,

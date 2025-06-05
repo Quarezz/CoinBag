@@ -177,11 +177,9 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
         onPressed: () async {
           // Navigate to AddExpenseScreen. It will need ExpenseRepository and AuthRepository (for accountId).
           // For now, it might break if AddExpenseScreen is not updated yet.
-          final result = await Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const AddExpenseScreen(),
-            ), // TODO: Update AddExpenseScreen constructor
-          );
+          final result = await Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const AddExpenseScreen()));
           if (result == true) {
             // Assuming AddExpenseScreen returns true on success
             _loadExpenses(); // Refresh the list
