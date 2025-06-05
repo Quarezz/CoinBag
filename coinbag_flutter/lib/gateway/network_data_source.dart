@@ -5,8 +5,10 @@ import 'package:coinbag_flutter/data/models/tag.dart';
 
 abstract class NetworkDataSource {
   // Existing specific methods
-  Future<Map<String, dynamic>> fetchDashboardInfo(String accountId);
-  Future<Map<String, dynamic>> fetchDashboardSummary();
+  Future<Map<String, dynamic>> fetchDashboardInfo({
+    required DateTime startDate,
+    required DateTime endDate,
+  });
   Future<List<Expense>> fetchExpenses({int page = 0, int pageSize = 20});
   Future<void> addExpense(Expense expense);
   Future<void> removeExpense(String id);
