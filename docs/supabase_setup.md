@@ -69,6 +69,15 @@ CREATE INDEX idx_expenses_category ON expenses(category);
 CREATE INDEX idx_bank_syncs_account ON bank_syncs(account_id);
 ```
 
+### Dashboard RPC
+
+To provide aggregated dashboard data, create the `fetch_dashboard_info` function.
+Run the SQL script included in this repository:
+
+```sql
+\i fetch_dashboard_info.sql
+```
+
 ### Set up Row Level Security (RLS)
 
 ```sql
