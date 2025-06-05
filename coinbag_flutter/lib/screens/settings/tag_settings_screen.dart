@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/tag.dart';
+import 'package:coinbag_flutter/data/models/tag.dart';
 
 class TagSettingsScreen extends StatefulWidget {
   const TagSettingsScreen({Key? key}) : super(key: key);
@@ -22,8 +22,8 @@ class _TagSettingsScreenState extends State<TagSettingsScreen> {
     await Future.delayed(const Duration(milliseconds: 500));
     setState(() {
       _tags.addAll([
-        Tag(id: '1', name: 'Work', colorValue: Colors.blue.value),
-        Tag(id: '2', name: 'Personal', colorValue: Colors.green.value),
+        Tag(id: '1', name: 'Work', color: Colors.blue.toString()),
+        Tag(id: '2', name: 'Personal', color: Colors.green.toString()),
       ]);
       _loading = false;
     });
@@ -42,9 +42,7 @@ class _TagSettingsScreenState extends State<TagSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
       appBar: AppBar(title: const Text('Tags')),
@@ -52,7 +50,11 @@ class _TagSettingsScreenState extends State<TagSettingsScreen> {
         children: _tags
             .map(
               (t) => ListTile(
-                leading: CircleAvatar(backgroundColor: Color(t.colorValue)),
+                leading: CircleAvatar(
+                  backgroundColor: Color(
+                    int.parse(t.color.replaceAll('#', '0xFF')),
+                  ),
+                ),
                 title: Text(t.name),
               ),
             )
@@ -110,7 +112,7 @@ class _AddTagDialogState extends State<_AddTagDialog> {
                 ),
               );
             }),
-          )
+          ),
         ],
       ),
       actions: [
@@ -125,12 +127,12 @@ class _AddTagDialogState extends State<_AddTagDialog> {
             final tag = Tag(
               id: DateTime.now().millisecondsSinceEpoch.toString(),
               name: name,
-              colorValue: _colors[_selected].value,
+              color: _colors[_selected].toString(),
             );
             Navigator.of(context).pop(tag);
           },
           child: const Text('Save'),
-        )
+        ),
       ],
     );
   }
