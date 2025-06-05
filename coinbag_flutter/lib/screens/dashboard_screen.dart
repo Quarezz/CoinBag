@@ -1,7 +1,9 @@
-import 'dart:developer' as developer;
 import 'dart:math';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../data/models/bill.dart';
+import 'package:intl/intl.dart';
+import 'dart:developer' as developer;
+
 import '../domain/repositories/dashboard/dashboard_repository.dart';
 import '../core/service_locator.dart';
 
@@ -14,10 +16,16 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   late final DashboardRepository _dashboardRepository;
-  List<double> _spending = const [];
-  List<Bill> _upcomingBills = const [];
   bool _loading = true;
   String? _error;
+
+  DateTime _startDate = DateTime.now().subtract(const Duration(days: 30));
+  DateTime _endDate = DateTime.now();
+
+  double _overallBalance = 0;
+  List<BalanceChartData> _balanceChartData = [];
+  List<Transaction> _latestTransactions = [];
+  List<CategorySpending> _categorySpending = [];
 
   @override
   void initState() {
@@ -26,29 +34,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _load();
   }
 
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: isStartDate ? _startDate : _endDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && mounted) {
+      setState(() {
+        if (isStartDate) {
+          _startDate = picked;
+        } else {
+          _endDate = picked;
+        }
+      });
+      _load();
+    }
+  }
+
   Future<void> _load() async {
+    if (!mounted) return;
     setState(() {
       _loading = true;
       _error = null;
     });
+
     try {
-      final data = await _dashboardRepository.fetchDashboardSummary();
-      if (!mounted) return;
-      setState(() {
-        _spending = (data['spending'] as List<dynamic>? ?? [])
-            .map((e) => (e as num).toDouble())
-            .toList();
-        _upcomingBills = (data['upcoming_bills'] as List<dynamic>? ?? [])
-            .map(
-              (e) => Bill(
-                id: e['id'] as String,
-                description: e['description'] as String,
-                amount: (e['amount'] as num).toDouble(),
-                dueDate: DateTime.parse(e['due_date'] as String),
-              ),
-            )
-            .toList();
-      });
+      final data = await _dashboardRepository.fetchDashboardInfo(
+        startDate: _startDate,
+        endDate: _endDate,
+      );
+
+      if (mounted) {
+        setState(() {
+          _overallBalance =
+              (data['overall_balance'] as num?)?.toDouble() ?? 0.0;
+          _balanceChartData = (data['balance_chart'] as List<dynamic>? ?? [])
+              .map((e) => BalanceChartData.fromJson(e))
+              .toList();
+          _latestTransactions =
+              (data['latest_transactions'] as List<dynamic>? ?? [])
+                  .map((e) => Transaction.fromJson(e))
+                  .toList();
+          _categorySpending =
+              (data['category_spending'] as List<dynamic>? ?? [])
+                  .map((e) => CategorySpending.fromJson(e))
+                  .toList();
+        });
+      }
     } catch (e, s) {
       if (mounted) {
         setState(() {
@@ -67,102 +101,277 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    if (_error != null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Dashboard')),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(onPressed: _load, child: const Text('Retry')),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
     return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text(
-            'Spending Over Time',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 200, child: SpendingChart(data: _spending)),
-          const SizedBox(height: 16),
-          const Text(
-            'Upcoming Bills',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          ..._upcomingBills.map(
-            (b) => ListTile(
-              title: Text(b.description),
-              subtitle: Text(
-                '\$${b.amount.toStringAsFixed(2)} due ${b.dueDate.month}/${b.dueDate.day}/${b.dueDate.year}',
+      appBar: AppBar(
+        title: const Text('Dashboard'),
+        actions: [
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _load),
+        ],
+      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _error!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _load,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ),
+            )
+          : _buildDashboard(),
+    );
+  }
+
+  Widget _buildDashboard() {
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: [
+          _buildDateRangeSelector(),
+          const SizedBox(height: 16),
+          _buildOverallBalance(),
+          const SizedBox(height: 16),
+          _buildBalanceChart(),
+          const SizedBox(height: 16),
+          _buildCategorySpending(),
+          const SizedBox(height: 16),
+          _buildLatestTransactions(),
         ],
       ),
     );
   }
-}
 
-class SpendingChart extends StatelessWidget {
-  final List<double> data;
-  const SpendingChart({Key? key, required this.data}) : super(key: key);
+  Widget _buildDateRangeSelector() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        ElevatedButton(
+          onPressed: () => _selectDate(context, true),
+          child: Text('Start: ${DateFormat.yMd().format(_startDate)}'),
+        ),
+        ElevatedButton(
+          onPressed: () => _selectDate(context, false),
+          child: Text('End: ${DateFormat.yMd().format(_endDate)}'),
+        ),
+      ],
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _LineChartPainter(
-        data: data,
-        lineColor: Theme.of(context).colorScheme.primary,
+  Widget _buildOverallBalance() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            const Text(
+              'Current Overall Balance',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '\$${_overallBalance.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 24, color: Colors.green),
+            ),
+          ],
+        ),
       ),
-      child: Container(),
+    );
+  }
+
+  Widget _buildBalanceChart() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Balance Over Time',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 200,
+          child: LineChart(
+            LineChartData(
+              gridData: const FlGridData(show: false),
+              titlesData: const FlTitlesData(show: false),
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: _balanceChartData
+                      .map(
+                        (d) => FlSpot(
+                          d.date.millisecondsSinceEpoch.toDouble(),
+                          d.balance,
+                        ),
+                      )
+                      .toList(),
+                  isCurved: true,
+                  barWidth: 3,
+                  isStrokeCapRound: true,
+                  dotData: const FlDotData(show: false),
+                  belowBarData: BarAreaData(show: false),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategorySpending() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Category Spending',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 200,
+          child: PieChart(
+            PieChartData(
+              sections: _categorySpending
+                  .asMap()
+                  .map(
+                    (index, data) => MapEntry(
+                      index,
+                      PieChartSectionData(
+                        color: _hexToColor(data.color),
+                        value: data.totalSpent,
+                        title:
+                            '${data.name}\n\$${data.totalSpent.toStringAsFixed(2)}',
+                        radius: 50,
+                        titleStyle: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  )
+                  .values
+                  .toList(),
+              sectionsSpace: 2,
+              centerSpaceRadius: 40,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLatestTransactions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Latest Transactions',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        _latestTransactions.isEmpty
+            ? const Text('No transactions in this period.')
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _latestTransactions.length,
+                itemBuilder: (context, index) {
+                  final transaction = _latestTransactions[index];
+                  return ListTile(
+                    title: Text(transaction.description),
+                    subtitle: Text(DateFormat.yMd().format(transaction.date)),
+                    trailing: Text(
+                      '\$${transaction.amount.toStringAsFixed(2)}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
+                },
+              ),
+      ],
     );
   }
 }
 
-class _LineChartPainter extends CustomPainter {
-  final List<double> data;
-  final Color lineColor;
-  _LineChartPainter({required this.data, required this.lineColor});
+class BalanceChartData {
+  final DateTime date;
+  final double balance;
+  BalanceChartData({required this.date, required this.balance});
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (data.isEmpty) return;
-    final paint = Paint()
-      ..color = lineColor
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
-    final maxValue = data.reduce(max);
-    final stepX = size.width / (data.length - 1);
-    final path = Path()
-      ..moveTo(0, size.height - (data[0] / maxValue) * size.height);
-    for (int i = 1; i < data.length; i++) {
-      final x = stepX * i;
-      final y = size.height - (data[i] / maxValue) * size.height;
-      path.lineTo(x, y);
-    }
-    canvas.drawPath(path, paint);
+  factory BalanceChartData.fromJson(Map<String, dynamic> json) {
+    return BalanceChartData(
+      date: DateTime.parse(json['date'] as String),
+      balance: (json['balance'] as num).toDouble(),
+    );
   }
+}
 
-  @override
-  bool shouldRepaint(covariant _LineChartPainter oldDelegate) =>
-      oldDelegate.data != data;
+class Transaction {
+  final String id;
+  final String description;
+  final double amount;
+  final DateTime date;
+
+  Transaction({
+    required this.id,
+    required this.description,
+    required this.amount,
+    required this.date,
+  });
+
+  factory Transaction.fromJson(Map<String, dynamic> json) {
+    return Transaction(
+      id: json['id'] as String,
+      description: json['description'] as String,
+      amount: (json['amount'] as num).toDouble(),
+      date: DateTime.parse(json['date'] as String),
+    );
+  }
+}
+
+class CategorySpending {
+  final String id;
+  final String name;
+  final double totalSpent;
+  final String color;
+
+  CategorySpending({
+    required this.id,
+    required this.name,
+    required this.totalSpent,
+    required this.color,
+  });
+
+  factory CategorySpending.fromJson(Map<String, dynamic> json) {
+    return CategorySpending(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      totalSpent: (json['total_spent'] as num).toDouble(),
+      color:
+          json['color'] as String? ?? '#808080', // Default to gray if no color
+    );
+  }
+}
+
+Color _hexToColor(String hexString) {
+  final buffer = StringBuffer();
+  if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+  buffer.write(hexString.replaceFirst('#', ''));
+  return Color(int.parse(buffer.toString(), radix: 16));
 }

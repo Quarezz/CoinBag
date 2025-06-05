@@ -18,4 +18,26 @@ class Expense {
     this.categoryId,
     this.tags = const [],
   });
+
+  Expense copyWith({
+    String? id,
+    String? description,
+    double? amount,
+    DateTime? date,
+    String? userId,
+    String? accountId,
+    String? categoryId,
+    List<String>? tags,
+  }) {
+    return Expense(
+      id: id ?? this.id,
+      description: description ?? this.description,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+      userId: userId ?? this.userId,
+      accountId: accountId ?? this.accountId,
+      categoryId: categoryId ?? this.categoryId,
+      tags: tags ?? this.tags,
+    );
+  }
 }
