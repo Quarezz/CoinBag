@@ -92,7 +92,9 @@ class _CoinBagAppState extends State<CoinBagApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'CoinBag',
-      theme: lightTheme,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ThemeMode.system,
       home: isLoggedIn
           ? HomePage(onLogout: () => setState(() {}))
           : LoginScreen(onLogin: () => setState(() {}), allowSkip: true),
