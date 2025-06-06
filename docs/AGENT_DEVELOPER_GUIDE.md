@@ -31,7 +31,11 @@ All tasks and their status are tracked in [`docs/MVP_development_plan.md`](MVP_d
 
 Before adding new logic or modifying existing features, review [`docs/PRODUCT_REQUIREMENTS_DOCUMENT.md`](PRODUCT_REQUIREMENTS_DOCUMENT.md). The PRD clarifies intended behavior and highlights open questions. Referencing it prevents mistakes such as implementing out‑of‑scope features or ignoring important edge cases.
 
-## 4. Reporting Questions
+## 4. Testing
+
+No need for test runs
+
+## 5. Reporting Questions
 
 If you encounter blocking issues or uncertainties:
 
