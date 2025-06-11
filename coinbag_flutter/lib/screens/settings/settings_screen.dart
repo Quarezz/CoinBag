@@ -4,6 +4,7 @@ import '../../domain/auth/auth_failures.dart';
 import 'category_settings_screen.dart';
 import 'tag_settings_screen.dart';
 import 'automatic_rules_screen.dart';
+import 'currency_settings_screen.dart';
 import '../../core/service_locator.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -48,6 +49,17 @@ class SettingsScreen extends StatelessWidget {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const AutomaticRulesScreen()),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Currency'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const CurrencySettingsScreen(),
+                ),
               );
             },
           ),

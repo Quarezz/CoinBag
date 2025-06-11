@@ -17,6 +17,8 @@ import '../domain/services/iap_service.dart';
 import '../domain/services/bank_sync_service.dart';
 import '../domain/repositories/tags/tag_repository.dart';
 import '../domain/repositories/tags/tag_repository_impl.dart';
+import '../domain/repositories/currency/currency_repository.dart';
+import '../domain/repositories/currency/currency_repository_impl.dart';
 
 final getIt = GetIt.instance;
 
@@ -34,7 +36,10 @@ void setupServiceLocator() {
     () => AuthRepositoryImpl(getIt<SupabaseClient>()),
   );
   getIt.registerLazySingleton<DashboardRepository>(
-    () => DashboardRepositoryImpl(getIt<NetworkDataSource>()),
+    () => DashboardRepositoryImpl(
+      getIt<NetworkDataSource>(),
+      getIt<CurrencyRepository>(),
+    ),
   );
   getIt.registerLazySingleton<AccountRepository>(
     () => AccountRepositoryImpl(getIt<NetworkDataSource>()),
@@ -50,6 +55,9 @@ void setupServiceLocator() {
   );
   getIt.registerLazySingleton<TagRepository>(
     () => TagRepositoryImpl(getIt<NetworkDataSource>()),
+  );
+  getIt.registerLazySingleton<CurrencyRepository>(
+    () => CurrencyRepositoryImpl(),
   );
 
   // Services

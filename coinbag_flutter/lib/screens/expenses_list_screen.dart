@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:coinbag_flutter/domain/repositories/expense/expense_repository.dart';
-import 'package:coinbag_flutter/domain/repositories/auth/auth_repository.dart';
 import 'package:coinbag_flutter/data/models/expense.dart';
 import 'add_expense_screen.dart';
 import '../core/service_locator.dart';
@@ -134,28 +133,45 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
           }
 
           final expense = _expenses[index];
-          return ListTile(
-            title: Text(expense.description),
-            subtitle: Text(
-              'Category: ${expense.categoryId ?? 'N/A'} - Date: ${expense.date.month}/${expense.date.day}/${expense.date.year}',
-            ),
-            trailing: Text(
-              '\$${expense.amount.toStringAsFixed(2)}',
-              style: TextStyle(
-                color: expense.amount < 0 ? Colors.red : Colors.green,
-                fontWeight: FontWeight.bold,
+          return Card(
+            child: ListTile(
+              leading: Icon(
+                Icons
+                    .category, // TODO: Replace with actual category icon based on categoryId
+                color: Theme.of(context).colorScheme.primary,
+                size: 40,
               ),
-            ),
-            onTap: () async {
-              final result = await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => EditExpenseScreen(expense: expense),
+              title: Text(
+                expense.description,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                'Category: ${expense.categoryId ?? 'N/A'} | Date: ${expense.date.month}/${expense.date.day}/${expense.date.year}',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-              );
-              if (result == true) {
-                _loadExpenses();
-              }
-            },
+              ),
+              trailing: Text(
+                '\$${expense.amount.toStringAsFixed(2)}',
+                style: TextStyle(
+                  color: expense.amount < 0
+                      ? Theme.of(context).colorScheme.error
+                      : Theme.of(context).colorScheme.secondary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              onTap: () async {
+                final result = await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => EditExpenseScreen(expense: expense),
+                  ),
+                );
+                if (result == true) {
+                  _loadExpenses();
+                }
+              },
+            ),
           );
         },
       );

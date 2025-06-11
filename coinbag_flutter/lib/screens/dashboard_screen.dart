@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +22,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   DateTime _endDate = DateTime.now();
 
   double _overallBalance = 0;
+  String _currency = '\$';
   List<BalanceChartData> _balanceChartData = [];
   List<Transaction> _latestTransactions = [];
   List<CategorySpending> _categorySpending = [];
@@ -70,6 +70,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         setState(() {
           _overallBalance =
               (data['overall_balance'] as num?)?.toDouble() ?? 0.0;
+          _currency = data['preferredCurrency'] as String? ?? _currency;
           _balanceChartData = (data['balance_chart'] as List<dynamic>? ?? [])
               .map((e) => BalanceChartData.fromJson(e))
               .toList();
@@ -185,7 +186,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '\$${_overallBalance.toStringAsFixed(2)}',
+              '$_currency${_overallBalance.toStringAsFixed(2)}',
               style: const TextStyle(fontSize: 24, color: Colors.green),
             ),
           ],
