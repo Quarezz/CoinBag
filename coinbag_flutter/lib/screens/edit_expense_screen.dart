@@ -1,6 +1,5 @@
 import 'dart:developer' as developer;
 
-import 'package:coinbag_flutter/domain/repositories/auth/auth_repository.dart';
 import 'package:coinbag_flutter/domain/repositories/expense/expense_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

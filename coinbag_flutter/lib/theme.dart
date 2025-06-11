@@ -98,6 +98,7 @@ class AppTheme {
           secondary: AppColors.success500,
           error: AppColors.danger500,
           tertiary: AppColors.info500,
+          onSurface: const Color(0xFF1A1C1E),
         );
 
     return _base(scheme);
@@ -115,6 +116,7 @@ class AppTheme {
           secondary: AppColors.success400,
           error: AppColors.danger400,
           tertiary: AppColors.info400,
+          onSurface: const Color(0xFFE2E2E6),
         );
 
     return _base(scheme);
@@ -128,9 +130,10 @@ class AppTheme {
       foregroundColor: scheme.onSurface,
       elevation: 0,
       centerTitle: false,
-      titleTextStyle: const TextStyle(
+      titleTextStyle: TextStyle(
         fontWeight: FontWeight.w600,
         fontSize: 20,
+        color: scheme.onSurface,
       ),
     );
 
@@ -143,7 +146,7 @@ class AppTheme {
       fontFamily: 'Fixel',
 
       // Surfaces
-      scaffoldBackgroundColor: scheme.background,
+      scaffoldBackgroundColor: scheme.surface,
       cardTheme: const CardThemeData(
         margin: EdgeInsets.all(8),
         elevation: 0,
@@ -199,7 +202,7 @@ class AppTheme {
 
       // Chips
       chipTheme: ChipThemeData(
-        color: MaterialStatePropertyAll(scheme.surfaceVariant),
+        color: WidgetStatePropertyAll(scheme.surfaceContainerHighest),
         selectedColor: scheme.primaryContainer,
         disabledColor: scheme.onSurface.withOpacity(.12),
         secondarySelectedColor: scheme.primaryContainer,
@@ -224,7 +227,7 @@ class AppTheme {
       // Inputs
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: scheme.surfaceVariant,
+        fillColor: scheme.surfaceContainerHighest,
         border: OutlineInputBorder(
           borderSide: BorderSide.none,
           borderRadius: BorderRadius.circular(8),
@@ -275,17 +278,17 @@ class AppTheme {
       // Segmented button (Material 3)
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: ButtonStyle(
-          foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-            (s) => s.contains(MaterialState.selected)
+          foregroundColor: WidgetStateProperty.resolveWith<Color?>(
+            (s) => s.contains(WidgetState.selected)
                 ? scheme.onPrimary
                 : scheme.onSurfaceVariant,
           ),
-          backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-            (s) => s.contains(MaterialState.selected)
+          backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+            (s) => s.contains(WidgetState.selected)
                 ? scheme.primary
-                : scheme.surfaceVariant,
+                : scheme.surfaceContainerHighest,
           ),
-          shape: MaterialStatePropertyAll(
+          shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
         ),
@@ -293,11 +296,11 @@ class AppTheme {
 
       // Toggles (switch & checkbox)
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStatePropertyAll(scheme.primary),
-        trackColor: MaterialStatePropertyAll(scheme.primary.withOpacity(.5)),
+        thumbColor: WidgetStatePropertyAll(scheme.primary),
+        trackColor: WidgetStatePropertyAll(scheme.primary.withOpacity(.5)),
       ),
       checkboxTheme: CheckboxThemeData(
-        fillColor: MaterialStatePropertyAll(scheme.primary),
+        fillColor: WidgetStatePropertyAll(scheme.primary),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
     );

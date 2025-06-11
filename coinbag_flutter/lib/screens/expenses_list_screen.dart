@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:coinbag_flutter/domain/repositories/expense/expense_repository.dart';
-import 'package:coinbag_flutter/domain/repositories/auth/auth_repository.dart';
 import 'package:coinbag_flutter/data/models/expense.dart';
 import 'add_expense_screen.dart';
 import '../core/service_locator.dart';

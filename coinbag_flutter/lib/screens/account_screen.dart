@@ -1,7 +1,7 @@
 import 'package:coinbag_flutter/screens/account_details_screen.dart';
 import 'package:coinbag_flutter/screens/add_account_screen.dart';
+import 'package:coinbag_flutter/screens/monobank/add_monobank_screen.dart';
 import 'package:flutter/material.dart';
-import '../domain/services/bank_sync_service.dart';
 import '../domain/repositories/account/account_repository.dart';
 import '../data/models/account.dart';
 import '../core/service_locator.dart';
@@ -16,7 +16,6 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
-  late BankSyncService _bankSyncService;
   late AccountRepository _accountRepository;
 
   bool _loading = true;
@@ -26,7 +25,6 @@ class _AccountScreenState extends State<AccountScreen> {
   @override
   void initState() {
     super.initState();
-    _bankSyncService = getIt<BankSyncService>();
     _accountRepository = getIt<AccountRepository>();
     _loadAccounts();
   }
@@ -57,29 +55,19 @@ class _AccountScreenState extends State<AccountScreen> {
     }
   }
 
-  Future<void> _addBankAccount() async {
-    final success = await _bankSyncService.linkBankAccount(
-      'new_account_id_placeholder',
-    );
-    if (success) {
-      _loadAccounts();
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Failed to link bank account. You may need premium or try again.',
-            ),
-          ),
-        );
-      }
-    }
-  }
-
   void _navigateToAddAccount() async {
     final result = await Navigator.of(
       context,
     ).push<bool>(MaterialPageRoute(builder: (_) => const AddAccountScreen()));
+    if (result == true) {
+      _loadAccounts();
+    }
+  }
+
+  void _navigateToAddMonobank() async {
+    final result = await Navigator.of(
+      context,
+    ).push<bool>(MaterialPageRoute(builder: (_) => const AddMonobankScreen()));
     if (result == true) {
       _loadAccounts();
     }
@@ -97,17 +85,43 @@ class _AccountScreenState extends State<AccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Accounts'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Add Manual Account',
-            onPressed: _navigateToAddAccount,
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Accounts')),
       body: _buildBody(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddAccountOptions(),
+        tooltip: 'Add Account',
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _showAddAccountOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Manual Account'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _navigateToAddAccount();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.account_balance),
+                title: const Text('Bank Account'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _navigateToAddMonobank();
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -147,7 +161,7 @@ class _AccountScreenState extends State<AccountScreen> {
             const Text('No accounts found.'),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _navigateToAddAccount,
+              onPressed: _showAddAccountOptions,
               child: const Text('Add your first account'),
             ),
           ],

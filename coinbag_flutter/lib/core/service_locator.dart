@@ -17,6 +17,9 @@ import '../domain/services/iap_service.dart';
 import '../domain/services/bank_sync_service.dart';
 import '../domain/repositories/tags/tag_repository.dart';
 import '../domain/repositories/tags/tag_repository_impl.dart';
+import '../domain/repositories/monobank_repository_impl.dart';
+import '../domain/repositories/monobank_repository.dart';
+import '../services/monobank_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -50,6 +53,14 @@ void setupServiceLocator() {
   );
   getIt.registerLazySingleton<TagRepository>(
     () => TagRepositoryImpl(getIt<NetworkDataSource>()),
+  );
+
+  // Monobank
+  getIt.registerLazySingleton<MonobankRepository>(
+    () => MonobankRepositoryImpl(),
+  );
+  getIt.registerLazySingleton<MonobankService>(
+    () => MonobankService(getIt<MonobankRepository>(), getIt<SupabaseClient>()),
   );
 
   // Services

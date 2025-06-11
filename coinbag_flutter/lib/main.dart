@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 
+import 'package:coinbag_flutter/core/network/http_client_logger.dart';
 import 'package:flutter/material.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/expenses_list_screen.dart';
@@ -15,6 +16,7 @@ import 'domain/auth/authentication_status.dart';
 import 'dart:async';
 
 import 'core/service_locator.dart';
+import 'package:http/http.dart' as http;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +26,7 @@ Future<void> main() async {
       'SUPABASE_ANON_KEY',
       defaultValue: '',
     ),
+    httpClient: LoggingHttpClient(http.Client()),
   );
 
   setupServiceLocator();

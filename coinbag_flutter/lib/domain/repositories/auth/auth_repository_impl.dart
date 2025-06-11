@@ -57,6 +57,9 @@ class AuthRepositoryImpl implements AuthRepository {
             .mfaChallengeVerified: // For MFA, not handled yet, treat as authenticated
           _authStatusController.add(AuthenticationStatus.authenticated);
           break;
+        case AuthChangeEvent.initialSession:
+          _authStatusController.add(AuthenticationStatus.authenticated);
+          break;
       }
     });
   }
