@@ -128,9 +128,10 @@ class AppTheme {
       foregroundColor: scheme.onSurface,
       elevation: 0,
       centerTitle: false,
-      titleTextStyle: const TextStyle(
+      titleTextStyle: TextStyle(
         fontWeight: FontWeight.w600,
         fontSize: 20,
+        color: scheme.primary,
       ),
     );
 
@@ -138,8 +139,19 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
 
-      // Typography - latest Material 3 defaults
-      typography: Typography.material2021(),
+      // Typography - latest Material 3 defaults with custom colors for headlines
+      typography: Typography.material2021().copyWith(
+        black: Typography.material2021().black.copyWith(
+          headlineLarge: TextStyle(color: scheme.primary),
+          headlineMedium: TextStyle(color: scheme.primary),
+          headlineSmall: TextStyle(color: scheme.primary),
+        ),
+        white: Typography.material2021().white.copyWith(
+          headlineLarge: TextStyle(color: scheme.primary),
+          headlineMedium: TextStyle(color: scheme.primary),
+          headlineSmall: TextStyle(color: scheme.primary),
+        ),
+      ),
       fontFamily: 'Fixel',
 
       // Surfaces
