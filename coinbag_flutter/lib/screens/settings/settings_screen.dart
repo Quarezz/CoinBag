@@ -5,6 +5,7 @@ import 'category_settings_screen.dart';
 import 'tag_settings_screen.dart';
 import 'automatic_rules_screen.dart';
 import '../../core/service_locator.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsScreen extends StatelessWidget {
   final VoidCallback onLogout;
@@ -75,6 +76,24 @@ class SettingsScreen extends StatelessWidget {
                   );
                 }
               }
+            },
+          ),
+          FutureBuilder<PackageInfo>(
+            future: PackageInfo.fromPlatform(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox.shrink();
+              }
+              final info = snapshot.data!;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Center(
+                  child: Text(
+                    'Version ${info.version} (${info.buildNumber})',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              );
             },
           ),
         ],
